@@ -620,7 +620,7 @@ export const updateTaskSchema = {
     }
 }
 
-export const addTeamMemberToWorkspace = {
+export const addTeamMemberToWorkspaceSchema = {
     email: {
         trim:true,
         notEmpty: {
