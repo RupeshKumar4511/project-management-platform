@@ -24,7 +24,7 @@ export const users =  pgTable("users",{
 
 export const oauthAccount = pgTable("oauth_account",{
     id:uuid('id').primaryKey().defaultRandom(),
-    userId:integer('user_id').notNull().references(()=>users.id,{onDelete:'cascade'}),
+    userId:uuid('user_id').notNull().references(()=>users.id,{onDelete:'cascade'}),
     provider:providerEnum('provider').notNull(),
     providerAccountId : varchar("provider_account_id",{length:255}).notNull().unique(),
     createdAt:timestamp("created_at").notNull().defaultNow()
@@ -33,7 +33,7 @@ export const oauthAccount = pgTable("oauth_account",{
 
 export const tokens = pgTable("tokens",{
     id:uuid("id").primaryKey().defaultRandom(),
-    userId:integer("user_id").notNull().references(()=>users.id,{onDelete:'cascade'}),
+    userId:uuid("user_id").notNull().references(()=>users.id,{onDelete:'cascade'}),
     refreshToken:varchar("refresh_token").notNull(),
     createdAt:timestamp("created_at").defaultNow().notNull(),
     expiredAt:timestamp("expired_at").notNull()

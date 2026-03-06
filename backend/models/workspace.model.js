@@ -1,6 +1,5 @@
-import { uuid, varchar,timestamp, pgTable,text, pgEnum,integer } from "drizzle-orm/pg-core";
+import { uuid, varchar,timestamp, pgTable,text, pgEnum,integer,uniqueIndex } from "drizzle-orm/pg-core";
 import { users } from "./user.model.js";
-import { uniqueIndex } from "drizzle-orm/gel-core";
 import { sql,relations } from "drizzle-orm";
 
 export const workspaceRoleEnum = pgEnum("workspace_user_role",["admin","member"])
@@ -18,7 +17,7 @@ export const workspaces = pgTable("workspaces",{
     createdAt:timestamp('created_at').defaultNow().notNull(),
     updatedAt:timestamp('updated_at').notNull().defaultNow()
 },(workspaces)=>[
-    uniqueIndex('workspace_index').on(sql`lower(${workspaces.workspaceName})`,workspaces.createdBy)
+    uniqueIndex('workspace_index').on(sql`lower(${workspaces.workspaceName})`,workspaces.adminEmail)
 ])
 
 export const workspaceUsers = pgTable('workspace_users',{
@@ -52,8 +51,8 @@ export const projects = pgTable('projects',{
 
 export const projectMembers = pgTable('project_members',{
     id:uuid("id").notNull().primaryKey().defaultRandom(),
-    userEmail:varchar("workspace_user_email",{length:255}).notNull().references(()=>workspaceUsers.email,{onDelete:'cascade',onUpdate:'cascade'}),
-    projectId:integer("project_id").notNull().references(()=>projects.id,{onDelete:'cascade'}),
+    userEmail:varchar("workspace_user_email",{length:255}).notNull().references(()=>workspaceUsers.userEmail,{onDelete:'cascade',onUpdate:'cascade'}),
+    projectId:uuid("project_id").notNull().references(()=>projects.id,{onDelete:'cascade'}),
 
 })
 
@@ -65,7 +64,7 @@ export const tasks = pgTable('tasks',{
     type:taskTypeEnum("type").notNull(),
     priority:priorityEnum("priority").notNull(),
     status:taskStatusEnum("status").notNull(),
-    assignee:varchar("assignee",{length:255}).notNull().references(()=>workspaceUsers.email,{onDelete:'cascade',onUpdate:'cascade'}),
+    assignee:varchar("assignee",{length:255}).notNull().references(()=>workspaceUsers.userEmail,{onDelete:'cascade',onUpdate:'cascade'}),
     dueDate:timestamp('due_date').notNull(),
     createdAt:timestamp("created_at").notNull().defaultNow(),
     updatedAt:timestamp('updated_at').notNull().defaultNow()
@@ -85,6 +84,14 @@ export const comments = pgTable('comments',{
 
 export const workspacesRelations = relations(workspaces, ({ many }) => ({
   projects: many(projects),
+  workspaceUsers: many(workspaceUsers)
+}));
+
+export const workspaceUsersRelations = relations(workspaceUsers, ({ one }) => ({
+  workspace: one(workspaces, {
+    fields: [workspaceUsers.workspaceName],
+    references: [workspaces.workspaceName],
+  }),
 }));
 
 
