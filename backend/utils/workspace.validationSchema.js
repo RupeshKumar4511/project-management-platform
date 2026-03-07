@@ -15,42 +15,6 @@ export const workspaceSchema = {
             errorMessage: "Workspace name should be 2-32 characters long."
         }
     },
-    createdBy: {
-        trim: true,
-        notEmpty: {
-            errorMessage: "admin name is required"
-        },
-        isString: {
-            errorMessage: "admin name must be string"
-        },
-        isLength: {
-            options: {
-                min: 3,
-                max: 32,
-            },
-            errorMessage: "Admin name should be 3-32 characters long."
-        }
-    },
-    adminEmail: {
-        trim: true,
-        notEmpty: {
-            errorMessage: "Admin Email is required"
-        },
-        isString: {
-            errorMessage: "Admin Email must be string"
-        },
-        isLength: {
-            options: {
-                max: 255,
-                min: 8
-            },
-            errorMessage: "Admin Email should be 8-255 characters long."
-        },
-        matches: {
-            options: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/],
-            errorMessage: "Admin email is not valid."
-        }
-    },
     description: {
         trim: true,
         notEmpty: {
@@ -99,20 +63,20 @@ export const createProjectSchema = {
             errorMessage: "project name should be 5-255 characters long."
         }
     },
-    workspaceName: {
+    workspaceId: {
         trim: true,
         notEmpty: {
-            errorMessage: "workspace name is required"
+            errorMessage: "workspace Id is required"
         },
         isString: {
-            errorMessage: "workspace name must be string"
+            errorMessage: "workspace Id must be string"
         },
         isLength: {
             options: {
-                min: 5,
-                max: 32
+                min: 36,
+                max: 36
             },
-            errorMessage: "workspace name should be 5-32 characters long."
+            errorMessage: "workspace id should be 36 characters long."
         }
     },
     projectLink: {
@@ -155,7 +119,7 @@ export const createProjectSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['Planning','Active','Completed','On Hold','Cancelled']], 
+            options: [['PLANNING','ACTIVE','COMPLETED','ON_HOLD','CANCELLED']], 
             errorMessage: 'Invalid status provided'
         }
     },
@@ -165,24 +129,24 @@ export const createProjectSchema = {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['Medium','Low','High']], 
+            options: [['MEDIUM','LOW','HIGH']], 
             errorMessage: 'Invalid priority provided'
         }
     },
     projectLead: {
         trim: true,
         notEmpty: {
-            errorMessage: "project_leader name is required"
+            errorMessage: "project_leader id is required"
         },
         isString: {
-            errorMessage: "project_leader name must be string"
+            errorMessage: "project_leader id must be string"
         },
         isLength: {
             options: {
-                min: 3,
-                max: 32
+                min: 36,
+                max: 36
             },
-            errorMessage: "project_leader name should be 3-32 characters long."
+            errorMessage: "project_leader id should be 36 characters long."
         }
     },
     startDate: {
@@ -209,6 +173,12 @@ export const createProjectSchema = {
             },
             errorMessage: "end date must be in DD-MM-YYYY"
         }
+    },
+    teamMembers:{
+        trim:true,
+        isArray:{
+            errorMessage: "teamMembers must be an array"
+        }
     }
 }
 
@@ -223,10 +193,10 @@ export const createTaskSchema = {
         },
         isLength: {
             options: {
-                min: 1,
-                max: 15
+                min: 36,
+                max: 36
             },
-            errorMessage: "project id should be 1-15 characters long."
+            errorMessage: "project id should be 36 characters long."
         }
     },
     title: {
@@ -261,13 +231,23 @@ export const createTaskSchema = {
             errorMessage: "Description should be 8-1000 characters long."
         }
     },
+    type: {
+        trim: true,
+        notEmpty: {
+            errorMessage: "type is required"
+        },
+        isIn: {
+            options: [['TASK','FEATURE','BUG','IMPROVEMENT','OTHER']], 
+            errorMessage: 'Invalid type provided'
+        }
+    },
     priority: {
         trim: true,
         notEmpty: {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['Medium','Low','High']], 
+            options: [['MEDIUM','LOW','HIGH']], 
             errorMessage: 'Invalid priority provided'
         }
     },
@@ -277,7 +257,7 @@ export const createTaskSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['Task','Feature','Bug','Improvement','Other']], 
+            options: [['TODO','IN_PROGRESS','DONE']], 
             errorMessage: 'Invalid status provided'
         }
     },
@@ -324,10 +304,26 @@ export const addCommentSchema = {
         },
         isLength: {
             options: {
-                min: 1,
-                max: 15
+                min: 36,
+                max: 36
             },
-            errorMessage: "task id should be 1-15 characters long."
+            errorMessage: "task id should be 36 characters long."
+        }
+    },
+    authorId: {
+        trim: true,
+        notEmpty: {
+            errorMessage: "author id is required"
+        },
+        isString: {
+            errorMessage: "author id must be string"
+        },
+        isLength: {
+            options: {
+                min: 36,
+                max: 36
+            },
+            errorMessage: "author id should be 36 characters long."
         }
     },
     content: {
@@ -354,6 +350,16 @@ export const updateWorkspaceSchema = {
         trim: true,
         notEmpty: {
             errorMessage : "workspaceId is required"
+        },
+        isString: {
+            errorMessage: "workspace id must be string"
+        },
+        isLength: {
+            options: {
+                min: 36,
+                max: 36
+            },
+            errorMessage: "workspace id should be 36 characters long."
         }
     },
     workspaceName: {
@@ -389,6 +395,16 @@ export const updateProjectSchema = {
         trim: true,
         isEmpty:{
             errorMessage: "project Id is required"
+        },
+        isString: {
+            errorMessage: "project id must be string"
+        },
+        isLength: {
+            options: {
+                min: 36,
+                max: 36
+            },
+            errorMessage: "project id should be 36 characters long."
         }
     },
     projectName: {
@@ -463,7 +479,7 @@ export const updateProjectSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['Planning','Active','Completed','On Hold','Cancelled']], 
+            options: [['PLANNING','ACTIVE','COMPLETED','ON_HOLD','CANCELLED']], 
             errorMessage: 'Invalid status provided'
         }
     },
@@ -473,7 +489,7 @@ export const updateProjectSchema = {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['Medium','Low','High']], 
+            options: [['MEDIUM','LOW','HIGH']], 
             errorMessage: 'Invalid priority provided'
         }
     },
@@ -530,10 +546,10 @@ export const updateTaskSchema = {
         },
         isLength: {
             options: {
-                min: 1,
-                max: 15
+                min: 36,
+                max: 36
             },
-            errorMessage: "project id should be 1-15 characters long."
+            errorMessage: "project id should be 36 characters long."
         }
     },
     title: {
@@ -568,13 +584,23 @@ export const updateTaskSchema = {
             errorMessage: "Description should be 8-1000 characters long."
         }
     },
+    type: {
+        trim: true,
+        notEmpty: {
+            errorMessage: "type is required"
+        },
+        isIn: {
+            options: [['TASK','FEATURE','BUG','IMPROVEMENT','OTHER']], 
+            errorMessage: 'Invalid type provided'
+        }
+    },
     priority: {
         trim: true,
         notEmpty: {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['Medium','Low','High']], 
+            options: [['MEDIUM','LOW','HIGH']], 
             errorMessage: 'Invalid priority provided'
         }
     },
@@ -584,24 +610,24 @@ export const updateTaskSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['Task','Feature','Bug','Improvement','Other']], 
+            options: [['TODO','IN_PROGRESS','DONE']], 
             errorMessage: 'Invalid status provided'
         }
     },
     assignee: {
         trim: true,
         notEmpty: {
-            errorMessage: "assignee is required"
+            errorMessage: "assignee Id is required"
         },
         isString: {
-            errorMessage: "assignee must be string"
+            errorMessage: "assignee Id must be string"
         },
         isLength: {
             options: {
-                min: 3,
-                max: 32
+                min: 36,
+                max: 36
             },
-            errorMessage: "assignee name should be 3-32 characters long."
+            errorMessage: "assignee name should be 36 characters long."
         }
     },
     dueDate: {
@@ -647,7 +673,7 @@ export const addTeamMemberToWorkspaceSchema = {
             errorMessage: "role is required"
         },
         isIn: {
-            options: [['admin','member']], 
+            options: [['org:admin','org:member']], 
             errorMessage: 'Invalid role provided'
         }
     },
@@ -678,6 +704,16 @@ export const updateProjectMemberSchema = {
         trim: true,
         isEmpty:{
             errorMessage: "project Id is required"
+        },
+        isString: {
+            errorMessage: "project id must be string"
+        },
+        isLength: {
+            options: {
+                min: 36,
+                max: 36
+            },
+            errorMessage: "project id should be 36 characters long."
         }
     },
 }
