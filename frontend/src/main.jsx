@@ -22,7 +22,6 @@ import WorkspaceList from './components/WorkspaceList.jsx'
 import CreateWorkspaceForm from './components/CreateWorkspaceForm.jsx'
 import Profile from './components/Profile.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
-import ensureAuth from './features/ensureAuth.js'
 
 const router = createBrowserRouter([
 
@@ -40,17 +39,15 @@ const router = createBrowserRouter([
   {
     path: '/app', element: <ProtectedRoute><WorkspaceHub /></ProtectedRoute>,
     errorElement: <ErrorPage />,
-    loader:ensureAuth,
     children: [
-      { path: '/app', element: <ProtectedRoute>< CreateWorkspaceForm /> </ProtectedRoute>},
-      { path: '/app/user-workspace', element: <ProtectedRoute> <WorkspaceList /></ProtectedRoute> },
+      { path: '/app', element: <ProtectedRoute><WorkspaceList /> </ProtectedRoute>},
+      { path: '/app/create-workspace', element: <ProtectedRoute> < CreateWorkspaceForm /> </ProtectedRoute> },
       { path: '/app/profile', element: <ProtectedRoute> <Profile /></ProtectedRoute> },
     ]
   },
   {
     path: '/app/workspace', element: <ProtectedRoute> <App/></ProtectedRoute>,
     errorElement: <ErrorPage />,
-    loader:ensureAuth,
     children: [
       { index: true, element: <ProtectedRoute> <Dashboard /></ProtectedRoute> },
       { path: '/app/workspace/team', element: <ProtectedRoute> <Team /></ProtectedRoute> },
