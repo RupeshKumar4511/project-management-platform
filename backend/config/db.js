@@ -1,7 +1,7 @@
 import {Pool} from 'pg';
 import {config} from 'dotenv';
 import {drizzle} from 'drizzle-orm/node-postgres';
-import * as schema from '../models/workspace.model.js'
+import {schema} from '../models/schema.js'
 config()
 
 const pool = new Pool({
