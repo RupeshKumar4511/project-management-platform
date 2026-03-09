@@ -50,7 +50,16 @@ const getWorkspaceDetails = async (workspaceId) => {
     const result = await db.query.workspaces.findFirst({
         where: (workspaces, { eq }) => eq(workspaces.id, workspaceId),
         with: {
-            workspaceUsers: true,   // Pulls all users for this workspace
+            workspaceUsers: { // Pulls all users for this workspace
+                with:{
+                    user:{
+                        columns:{
+                            password:false,
+                            role: false
+                        }
+                    } 
+                }
+            },   
             projects: {
                 with: {
                     tasks: true,        // Pulls all tasks for each project
@@ -66,7 +75,7 @@ export const getFullWorkspaceDetails = async (req, res) => {
     try {
         const workspaceDetails = await getWorkspaceDetails(req.user.workspaceId)
 
-        return res.status(200).send({ success: true, workspaceDetails })
+        return res.status(200).send({ success: true, details:workspaceDetails })
 
     } catch (error) {
         console.log(error)
@@ -86,7 +95,7 @@ export const joinWorkspace = async (req, res) => {
 
         const workspaceDetails = await getWorkspaceDetails(req.user.workspaceId)
 
-        return res.status(200).send({ success: true, message: "Join Workspace Successfully", workspaceDetails: workspaceDetails })
+        return res.status(200).send({ success: true, message: "Join Workspace Successfully", details: workspaceDetails })
 
     } catch (error) {
         console.log(error)
@@ -146,13 +155,13 @@ export const addTeamMemberToWorkspace = async (req, res) => {
         strict: true
     });
 
-    const hashedPassword = bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     try {
         let body;
-        const [user] = db.select({ id:users.id }).from(users).where(eq(users.email, email));
+        const [user] = await db.select({ id:users.id }).from(users).where(eq(users.email, email));
         
-        const [workspace] = db.select({name:workspaces.name}).from(workspaces).where(workspaces.id,req.user.workspaceId)
+        const [workspace] = await db.select({name:workspaces.name}).from(workspaces).where(eq(workspaces.id,req.user.workspaceId))
 
         if (user) {
             body = { workspaceName: workspace.name, email }
@@ -160,7 +169,7 @@ export const addTeamMemberToWorkspace = async (req, res) => {
         } else {
             body = { workspaceName: workspace.name, email, username, password }
             await db.transaction(async (tx) => {
-                const [newUser] = await tx.insert(users).values({ username, email, password: hashedPassword, role: "guest" }).returning({insertedId:newUser.id});
+                const [newUser] = await tx.insert(users).values({ username, email, password: hashedPassword, role: "guest" }).returning({insertedId:users.id});
                 await tx.insert(workspaceUsers).values({ workspaceId: req.user.workspaceId, userId:newUser.insertedId , role })
                 
             })
@@ -404,6 +413,42 @@ export const updateTask = async (req, res) => {
     }
 }
 
+export const updateTaskStatus = async (req, res) => {
+    const { taskId } = req.params;
+    const { projectId, status} = req.body;
+
+    if(!taskId?.trim() || !projectId?.trim() || !status?.trim() ){
+        return res.status(400).send({success:false,message:"Required field not found."})
+    }
+    try {
+        const isValidTask = await db.select({ workspaceName:workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
+        )));
+
+        if (!isValidTask) {
+            return res.status(400).send({ success: false, message: "Access Denied" })
+        }
+        const [project] = await db.select({ projectId: projects.id }).where(eq(projects.id, projectId));
+
+        if (!project) {
+            return res.status(400).send({ success: false, message: "Project Id not found" })
+        }
+
+        const [task] = await db.select({assignee:tasks.assigneeId}).from(tasks).where(eq(tasks.id, taskId));
+
+        if (!task) {
+            return res.status(400).send({ success: false, message: "Task not found" })
+        }
+
+        await db.update(tasks).set({ status}).where(eq(tasks.id, taskId));
+
+        return res.status(200).send({ success: true, message: "Task status Updated Successfully." })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ success: false, message: "Internal Server Error" })
+    }
+}
+
 // delete Workspace 
 export const deleteWorkspace = async (req, res) => {
     const { workspaceId } = req.params;
@@ -490,7 +535,7 @@ export const deleteTask = async (req, res) => {
 
 // delete Team member from workspace
 export const deleteWorkspaceMember = async (req, res) => {
-    const { userId } = req.body;
+    const { userId } = req.params;
 
     const [isAuthorizedUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).innerJoin(workspaces, eq(workspaces.ownerId, workspaceUsers.userId)).where(and(eq(workspaceUsers.userId, req.users.id), eq(workspaces.ownerId, req.user.id)))
 
@@ -505,7 +550,7 @@ export const deleteWorkspaceMember = async (req, res) => {
 
 // delete Team member from projects
 export const deleteProjectMember = async (req, res) => {
-    const { userId, projectId } = req.body;
+    const { userId, projectId } = req.query;
 
     try {
         const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
