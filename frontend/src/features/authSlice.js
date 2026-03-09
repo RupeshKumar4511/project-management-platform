@@ -3,7 +3,7 @@ import ensureAuth from "./ensureAuth";
 
 export const signUp = createAsyncThunk('auth/signup', async (userData, thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/signup', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/signup', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -20,7 +20,7 @@ export const signUp = createAsyncThunk('auth/signup', async (userData, thunkAPI)
 
 export const signIn = createAsyncThunk('auth/signin', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/login', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/login', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             credentials: "include",
@@ -38,8 +38,8 @@ export const signIn = createAsyncThunk('auth/signin', async (userData,thunkAPI) 
 
 export const signOut = createAsyncThunk('auth/signOut', async (userData,thunkAPI) => {
     try {
-        await ensureAuth()
-        const response = await fetch('http://localhost:3000/api/v1/users/logout', {
+        await ensureAuth();
+        const response = await fetch('http://localhost:3000/api/v1/auth/logout', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             credentials: "include",
@@ -62,7 +62,7 @@ export const signOut = createAsyncThunk('auth/signOut', async (userData,thunkAPI
 
 export const sendMail = createAsyncThunk('auth/sendMail', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/send-email', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/send-email', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -79,7 +79,7 @@ export const sendMail = createAsyncThunk('auth/sendMail', async (userData,thunkA
 
 export const sendMail2 = createAsyncThunk('auth/sendMail2', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/send-email', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/send-email', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -96,7 +96,7 @@ export const sendMail2 = createAsyncThunk('auth/sendMail2', async (userData,thun
 
 export const verifyUser = createAsyncThunk('auth/verifyUser', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/verify-user', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/verify-user', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -113,7 +113,7 @@ export const verifyUser = createAsyncThunk('auth/verifyUser', async (userData,th
 
 export const resetPassword = createAsyncThunk('auth/reset-password', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/reset-password', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/reset-password', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)

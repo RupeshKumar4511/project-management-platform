@@ -1,197 +1,249 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { dummyWorkspaces } from "../assets/assets";
-import ensureAuth from "./ensureAuth";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export const createWorkspace = createAsyncThunk('workspace/create', async (workspaceData, thunkAPI) => {
-    try {
-        await ensureAuth()
-        const response = await fetch('http://localhost:3000/api/v1/workspace/create-workspace', {
-            method: "POST",
-            headers: { "Content-Type": 'application/json' },
-            body: JSON.stringify(workspaceData),
-            credentials: 'include'
-        })
-        const data = await response.json()
-        if (!response.ok) {
-            return thunkAPI.rejectWithValue(data.message || "workspace creation failed");
-        }
-        return data;
-    } catch (error) {
-        return thunkAPI.rejectWithValue(error.message);
+const baseQuery = fetchBaseQuery({ 
+    baseUrl: 'http://localhost:3000/api/v1/workspace',
+    // Global credentials setting so you don't have to repeat it in every endpoint
+    prepareHeaders: (headers) => {
+        return headers;
     }
-})
-
-export const joinWorkspace = createAsyncThunk('workspace/join', async (joinWorkspaceData, thunkAPI) => {
-    try {
-        await ensureAuth();
-        const response = await fetch('http://localhost:3000/api/v1/workspace/join-workspace', {
-            method: "POST",
-            headers: { "Content-Type": 'application/json' },
-            body: JSON.stringify(joinWorkspaceData),
-            credentials: 'include'
-        })
-        const data = await response.json()
-        if (!response.ok) {
-            return thunkAPI.rejectWithValue(data.message || "failed to join workspace");
-        }
-        return data;
-    } catch (error) {
-        return thunkAPI.rejectWithValue(error.message);
-    }
-})
-
-const initialState = {
-    workspaces: dummyWorkspaces || [],
-    currentWorkspace: dummyWorkspaces[1],
-    loading: false,
-    response: {
-        createWorkspaceResponse: {},
-        joinWorkspaceResponse: {}
-    },
-    error: {
-        createWorkspaceError: '',
-        joinWorkspaceError: ''
-    }
-};
-
-const workspaceSlice = createSlice({
-    name: "workspace",
-    initialState,
-    reducers: {
-        setWorkspaces: (state, action) => {
-            state.workspaces = action.payload;
-        },
-        setCurrentWorkspace: (state, action) => {
-            localStorage.setItem("currentWorkspaceId", action.payload);
-            state.currentWorkspace = state.workspaces.find((w) => w.id === action.payload);
-        },
-        addWorkspace: (state, action) => {
-            state.workspaces.push(action.payload);
-
-            // set current workspace to the new workspace
-            if (state.currentWorkspace?.id !== action.payload.id) {
-                state.currentWorkspace = action.payload;
-            }
-        },
-        updateWorkspace: (state, action) => {
-            state.workspaces = state.workspaces.map((w) =>
-                w.id === action.payload.id ? action.payload : w
-            );
-
-            // if current workspace is updated, set it to the updated workspace
-            if (state.currentWorkspace?.id === action.payload.id) {
-                state.currentWorkspace = action.payload;
-            }
-        },
-        deleteWorkspace: (state, action) => {
-            state.workspaces = state.workspaces.filter((w) => w._id !== action.payload);
-        },
-        addProject: (state, action) => {
-            state.currentWorkspace.projects.push(action.payload);
-            // find workspace by id and add project to it
-            state.workspaces = state.workspaces.map((w) =>
-                w.id === state.currentWorkspace.id ? { ...w, projects: w.projects.concat(action.payload) } : w
-            );
-        },
-        addTask: (state, action) => {
-
-            state.currentWorkspace.projects = state.currentWorkspace.projects.map((p) => {
-                console.log(p.id, action.payload.projectId, p.id === action.payload.projectId);
-                if (p.id === action.payload.projectId) {
-                    p.tasks.push(action.payload);
-                }
-                return p;
-            });
-
-            // find workspace and project by id and add task to it
-            state.workspaces = state.workspaces.map((w) =>
-                w.id === state.currentWorkspace.id ? {
-                    ...w, projects: w.projects.map((p) =>
-                        p.id === action.payload.projectId ? { ...p, tasks: p.tasks.concat(action.payload) } : p
-                    )
-                } : w
-            );
-        },
-        updateTask: (state, action) => {
-            state.currentWorkspace.projects.map((p) => {
-                if (p.id === action.payload.projectId) {
-                    p.tasks = p.tasks.map((t) =>
-                        t.id === action.payload.id ? action.payload : t
-                    );
-                }
-            });
-            // find workspace and project by id and update task in it
-            state.workspaces = state.workspaces.map((w) =>
-                w.id === state.currentWorkspace.id ? {
-                    ...w, projects: w.projects.map((p) =>
-                        p.id === action.payload.projectId ? {
-                            ...p, tasks: p.tasks.map((t) =>
-                                t.id === action.payload.id ? action.payload : t
-                            )
-                        } : p
-                    )
-                } : w
-            );
-        },
-        deleteTask: (state, action) => {
-            state.currentWorkspace.projects.map((p) => {
-                p.tasks = p.tasks.filter((t) => !action.payload.includes(t.id));
-                return p;
-            });
-            // find workspace and project by id and delete task from it
-            state.workspaces = state.workspaces.map((w) =>
-                w.id === state.currentWorkspace.id ? {
-                    ...w, projects: w.projects.map((p) =>
-                        p.id === action.payload.projectId ? {
-                            ...p, tasks: p.tasks.filter((t) => !action.payload.includes(t.id))
-                        } : p
-                    )
-                } : w
-            );
-        },
-        updateCreateWorkspaceResponse: (state) => {
-            state.response.createWorkspaceResponse = {};
-            state.error.createWorkspaceError=''
-        },
-        updateJoinWorkspaceResponse: (state) => {
-            state.response.joinWorkspaceResponse = {};
-            state.error.joinWorkspaceError = ''
-        }
-
-    },
-    extraReducers: (builder => {
-            builder.addCase(createWorkspace.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(createWorkspace.fulfilled, (state, action) => {
-                state.loading = false;
-                state.error.createWorkspaceError = '';
-                state.response.createWorkspaceResponse = action.payload
-
-            })
-            .addCase(createWorkspace.rejected, (state, action) => {
-                state.loading = false;
-                state.error.createWorkspaceError = action.payload || action.error.message || "Something went wrong.";
-
-            })
-            .addCase(joinWorkspace.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(joinWorkspace.fulfilled, (state, action) => {
-                state.loading = false;
-                state.error.joinWorkspaceError = '';
-                state.response.joinWorkspaceResponse = action.payload
-                
-
-            })
-            .addCase(joinWorkspace.rejected, (state, action) => {
-                state.loading = false;
-                state.error.joinWorkspaceError = action.payload || action.error.message || "Something went wrong.";
-
-            })
-
-    })
 });
 
-export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, addTask, updateTask, deleteTask, updateCreateWorkspaceResponse, updateJoinWorkspaceResponse } = workspaceSlice.actions;
-export default workspaceSlice.reducer;
+
+const baseQueryWithReauth = async (args, api, extraOptions) => {
+    // 1. Run the original request
+    let result = await baseQuery(args, api, extraOptions);
+
+    // 2. Check if it failed with 401
+    if (result.error && result.error.status === 401 && result.error.data?.message == "Token expired") {
+        console.log('Token expired, attempting refresh...');
+
+        // 3. Attempt to get a new token (using a dedicated refresh endpoint)
+        // Adjust the URL to your actual refresh endpoint
+        const refreshResult = await baseQuery({ 
+            url: 'http://localhost:3000/api/v1/auth/refresh', 
+            method: 'POST',
+            credentials: "include" 
+        }, api, extraOptions);
+
+        if (refreshResult.data && refreshResult.data?.success) {
+            console.log('Refresh successful, retrying original request');
+            // 4. Retry the original request with the new session
+            result = await baseQuery(args, api, extraOptions);
+        } else {
+            console.log('Refresh failed, logging out');
+            alert("You are Signed out. Please Login to continue");
+            window.location.href = '/';
+        }
+    }
+    return result;
+};
+
+export const workspace = createApi({
+    reducerPath: 'workspace',
+    tagTypes: ['workspace-details', 'my-tasks','comments'],
+    baseQuery: baseQueryWithReauth,
+    endpoints: (builder) => ({
+        getWorkspaceDetails: builder.query({
+            query: () => ({
+                url: '/get-details',
+                method: 'GET',
+                credentials:"include",
+            }),
+            providesTags: ['workspace-details']
+        }),
+        getUserTasks: builder.query({
+            query: () => ({
+                url: '/get-my-tasks',
+                method: 'GET',
+                credentials:"include",
+            }),
+            providesTags: ['my-tasks']
+        }),
+        createWorkspace: builder.mutation({
+            query: (post) => ({
+                url: '/create-workspace',
+                method: 'POST',
+                credentials:"include",
+                body: post,
+                
+            })
+        }),
+        joinWorkspace: builder.mutation({
+            query: (data) => ({
+                url: '/join-workspace',
+                method: 'POST',
+                credentials:"include",
+                body: data
+            }),
+        }),
+        createProject: builder.mutation({
+            query: (data) => ({
+                url: '/create-project',
+                method: 'POST',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        createTask: builder.mutation({
+            query: (data) => ({
+                url: '/create-task',
+                method: 'POST',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        addWorkspaceMember: builder.mutation({
+            query: (data) => ({
+                url: '/add-workspace-member',
+                method: 'POST',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        addProjectMember: builder.mutation({
+            query: (data) => ({
+                url: '/add-project-member',
+                method: 'POST',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        getComment: builder.query({
+            query: (taskId) => ({
+                url: `/get-comment/${taskId}`,
+                method: 'GET',
+                credentials:"include",
+            }),
+            invalidatesTags: ['comments']
+
+        }),
+        addComment: builder.mutation({
+            query: (data) => ({
+                url: '/add-comment',
+                method: 'POST',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['comments']
+
+        }),
+        updateWorkspace: builder.mutation({
+            query: (data) => ({
+                url: `/update-workspace/${data.workspaceId}`,
+                method: 'PUT',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workspace-details']
+
+        }),
+        updateProject: builder.mutation({
+            query: (data) => ({
+                url: `/update-project/${data.projectId}`,
+                method: 'PUT',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workspace-details']
+
+        }),
+        updateTask: builder.mutation({
+            query: (data) => ({
+                url: `/update-task/${data.taskId}`,
+                method: 'PUT',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workspace-details']
+
+        }),
+        updateTaskStatus: builder.mutation({
+            query: (data) => ({
+                url: `/update-task-status/${data.taskId}`,
+                method: 'PUT',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workspace-details']
+
+        }),
+        updateProjectMember: builder.mutation({
+            query: (data) => ({
+                url: '/update-project-member',
+                method: 'PUT',
+                credentials:"include",
+                body: data
+            }),
+            invalidatesTags: ['workspace-details']
+
+        }),
+        deleteWorkspace: builder.mutation({
+            query: (id) => ({
+                url: `/delete-workspace/${id}`,
+                credentials:"include",
+                method: 'DELETE'
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        deleteProject: builder.mutation({
+            query: (id) => ({
+                url: `/delete-project/${id}`,
+                credentials:"include",
+                method: 'DELETE'
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        deleteTask: builder.mutation({
+            query: (id) => ({
+                url: `/delete-task/${id}`,
+                credentials:"include",
+                method: 'DELETE'
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        deleteWorkspaceMember: builder.mutation({
+            query: (id) => ({
+                url: `/delete-workspace-member/${id}`,
+                credentials:"include",
+                method: 'DELETE'
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        deleteProjectMember: builder.mutation({
+            query: (data) => ({
+                url: `/delete-project-member?userId=${data.userId}&projectId=${data.projectId}`,
+                credentials:"include",
+                method: 'DELETE'
+            }),
+            invalidatesTags: ['workpace-details']
+
+        }),
+        deleteComments: builder.mutation({
+            query: (id) => ({
+                url: `/delete-comments/${id}`,
+                credentials:"include",
+                method: 'DELETE'
+            }),
+            invalidatesTags: ['comments']
+
+        }),
+        
+    })
+})
+
+
+export const { useGetWorkspaceDetailsQuery, useGetUserTasksQuery,useGetCommentQuery, useJoinWorkspaceMutation, useCreateWorkspaceMutation,useCreateProjectMutation,useCreateTaskMutation,useAddWorkspaceMemberMutation,useAddProjectMemberMutation,useAddCommentMutation,useUpdateWorkspaceMutation,useUpdateProjectMemberMutation,useUpdateProjectMutation,useUpdateTaskMutation,useDeleteWorkspaceMutation,useDeleteProjectMutation,useDeleteTaskMutation,useDeleteProjectMemberMutation,useDeleteWorkspaceMemberMutation,useDeleteCommentsMutation} = workspace;
+
+

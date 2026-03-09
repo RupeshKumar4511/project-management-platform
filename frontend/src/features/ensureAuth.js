@@ -1,6 +1,6 @@
 const generateNewRefreshToken = async () => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/users/refresh', {
+        const response = await fetch('http://localhost:3000/api/v1/auth/refresh', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             credentials:'include'
@@ -16,7 +16,7 @@ const  ensureAuth = async () => {
   const customMsg = { message: "Logout Successfully", logout: true };
 
   try {
-    const response = await fetch('http://localhost:3000/api/v1/users', {
+    const response = await fetch('http://localhost:3000/api/v1/auth', {
       method: 'GET',
       credentials: 'include',
     });
