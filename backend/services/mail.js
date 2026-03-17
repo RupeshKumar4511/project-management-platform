@@ -98,8 +98,8 @@ export const sendTaskInvitation = async (body) => {
         subject: `Task Invitation from ${workspaceName}`,
         html: `<div>
             <p>You have assigned a new task </p>
-            <h3>Title ${title}</h3>
-            <h3>Description ${description}</h3>
+            <h3>Title:  ${title}</h3>
+            <h3>Description:  ${description}</h3>
         </div>`
 
     }
