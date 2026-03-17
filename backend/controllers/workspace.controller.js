@@ -30,9 +30,9 @@ export const createWorkspace = async (req, res) => {
         }
 
         await db.transaction(async (tx) => {
-            const [newWorkspace ] = await tx.insert(workspaces).values({ name:workspaceName, ownerId:req.user.id, description }).returning({insertedId:workspaces.id})
+            const [newWorkspace] = await tx.insert(workspaces).values({ name: workspaceName, ownerId: req.user.id, description }).returning({ insertedId: workspaces.id })
 
-            await tx.insert(workspaceUsers).values({ workspaceId:newWorkspace.insertedId, userId: req.user.id, role: 'org:admin' })
+            await tx.insert(workspaceUsers).values({ workspaceId: newWorkspace.insertedId, userId: req.user.id, role: 'org:admin' })
         })
 
 
@@ -51,15 +51,15 @@ const getWorkspaceDetails = async (workspaceId) => {
         where: (workspaces, { eq }) => eq(workspaces.id, workspaceId),
         with: {
             workspaceUsers: { // Pulls all users for this workspace
-                with:{
-                    user:{
-                        columns:{
-                            password:false,
+                with: {
+                    user: {
+                        columns: {
+                            password: false,
                             role: false
                         }
-                    } 
+                    }
                 }
-            },   
+            },
             projects: {
                 with: {
                     tasks: true,        // Pulls all tasks for each project
@@ -75,7 +75,7 @@ export const getFullWorkspaceDetails = async (req, res) => {
     try {
         const workspaceDetails = await getWorkspaceDetails(req.user.workspaceId)
 
-        return res.status(200).send({ success: true, details:workspaceDetails })
+        return res.status(200).send({ success: true, details: workspaceDetails })
 
     } catch (error) {
         console.log(error)
@@ -106,31 +106,41 @@ export const joinWorkspace = async (req, res) => {
 export const createProject = async (req, res) => {
     const { title, projectLink, description, status, priority, projectLead, startDate, endDate, teamMembers } = req.body;
 
-    const [project] = db.select({ title: projects.title }).from(projects).where(and(eq(sql`lower(${projects.title})`, title.toLowerCase()), eq(projects.workspaceId, req.user.workspaceId)))
+    try {
+        const [project] = await db.select({ title: projects.title }).from(projects).where(and(eq(sql`lower(${projects.title})`, title.toLowerCase()), eq(projects.workspaceId, req.user.workspaceId)))
 
-    if (project) {
-        return res.status(409).send({ success: false, message: "Project name already exists" })
-    }
-
-    const [workspaceUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).where(eq(workspaceUsers.id, projectLead))
-
-    if (!workspaceUser) {
-        return res.status(400).send({ success: false, message: "User does not exists. Add members to team first" })
-    }
-
-    await db.transaction(async (tx) => {
-        const foundUsers = await tx.select({id:workspaceUsers.id,email:users.email }).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(inArray(users.email, teamMembers))
-
-        if (foundUsers.length > 0) {
-            const projectLeadId = foundUsers.map((user)=>user.email==projectLead)
-            const [newProject] = await tx.insert(projects).values({ title, workspaceId: req.user.workspaceId, projectLink, description, status, priority, projectLead:projectLeadId, startDate, endDate }).returning({ insertedId: projects.id });
-
-            await tx.insert(projectMembers).values(foundUsers.map((user) => ({ userId: user.id, projectId: newProject.insertedId })))
+        if (project) {
+            return res.status(409).send({ success: false, message: "Project name already exists" })
         }
 
-    })
+        await db.transaction(async (tx) => {
+            const foundUsers = await tx.select({ id: workspaceUsers.id, email: users.email }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(inArray(users.email, teamMembers))
 
-    res.status(201).send({ success: true, message: "project created successfully." })
+            if (foundUsers.length == 0) {
+                return res.status(400).send({success:false,message:"Members does not exists. First add members to team"})
+            }
+
+            if(foundUsers.length > 0){
+                const [projectLeadId] = foundUsers.map((user) => {
+                    if(user.email == projectLead){
+                        return user.id
+                    }
+                })
+                    const start_date = new Date(startDate)
+                    const end_date = new Date(endDate)
+                const [newProject] = await tx.insert(projects).values({ title, workspaceId: req.user.workspaceId, projectLink, description, status, priority, projectLead: projectLeadId, startDate:start_date, endDate:end_date }).returning({ insertedId: projects.id });
+
+                await tx.insert(projectMembers).values(foundUsers.map((user) => ({ userId: user.id, projectId: newProject.insertedId })))
+            }
+
+        })
+
+        return res.status(201).send({ success: true, message: "project created successfully." })
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).send({ success: false, message: "Internal Server Error" })
+    }
 
 }
 
@@ -159,19 +169,19 @@ export const addTeamMemberToWorkspace = async (req, res) => {
 
     try {
         let body;
-        const [user] = await db.select({ id:users.id }).from(users).where(eq(users.email, email));
-        
-        const [workspace] = await db.select({name:workspaces.name}).from(workspaces).where(eq(workspaces.id,req.user.workspaceId))
+        const [user] = await db.select({ id: users.id }).from(users).where(eq(users.email, email));
+
+        const [workspace] = await db.select({ name: workspaces.name }).from(workspaces).where(eq(workspaces.id, req.user.workspaceId))
 
         if (user) {
             body = { workspaceName: workspace.name, email }
-            await db.insert(workspaceUsers).values({ workspaceId: req.user.workspaceId, userId:user.id, role })
+            await db.insert(workspaceUsers).values({ workspaceId: req.user.workspaceId, userId: user.id, role })
         } else {
             body = { workspaceName: workspace.name, email, username, password }
             await db.transaction(async (tx) => {
-                const [newUser] = await tx.insert(users).values({ username, email, password: hashedPassword, role: "guest" }).returning({insertedId:users.id});
-                await tx.insert(workspaceUsers).values({ workspaceId: req.user.workspaceId, userId:newUser.insertedId , role })
-                
+                const [newUser] = await tx.insert(users).values({ username, email, password: hashedPassword, role: "guest" }).returning({ insertedId: users.id });
+                await tx.insert(workspaceUsers).values({ workspaceId: req.user.workspaceId, userId: newUser.insertedId, role })
+
             })
         }
 
@@ -191,8 +201,8 @@ export const addMemberToProject = async (req, res) => {
     try {
 
         const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id
-            , projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.id, req.user.userId), eq(projects.id, projectId)
-        )));
+            , projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.id, req.user.memberId), eq(projects.id, projectId)
+            )));
 
         if (!isValidProject) {
             return res.status(400).send({ success: false, message: "This is not your project" })
@@ -228,12 +238,16 @@ export const addMemberToProject = async (req, res) => {
 
 // Create Task in a project and invite to team member 
 export const createTask = async (req, res) => {
-    const { projectId, title, description, type, priority, assignee, status, dueDate } = req.body;
+    const { projectId, title, description, type, priority, assigneeId, status, dueDate } = req.body;
 
     try {
 
-        const isValidProject = await db.select({ projectId: projects.id,workspaceName:workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
-        )));
+        const isValidProject = await db.select({ projectId: projects.id, workspaceName: workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(
+            or(
+                and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), 
+                and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId))
+            )
+        );
 
         if (!isValidProject) {
             return res.status(400).send({ success: false, message: "This is not your project" })
@@ -245,7 +259,7 @@ export const createTask = async (req, res) => {
             return res.status(400).send({ success: false, message: "this task already exist. Provide another title." })
         }
 
-        const [workspaceUser] = await db.select({ id:workspaceUsers.id, email: users.email}).from(workspaceUsers).innerJoin(users,eq(workspaceUsers.userId,users.id)).where(and(eq(workspaceUsers.workspaceId, req.user.id),eq(users.email,assignee)))
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id, email: users.email }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(and(eq(workspaceUsers.workspaceId, req.user.workspaceId), eq(workspaceUsers.id, assigneeId)))
 
         if (!workspaceUser) {
             return res.status(400).send({ success: false, message: "User does not exists. Add members to team first" })
@@ -258,7 +272,7 @@ export const createTask = async (req, res) => {
         await sendTaskInvitation(body);
 
         await db.insert(tasks).values({
-            projectId, title, description, type, priority, assigneeId:workspaceUser.id, status, dueDate
+            projectId, title, description, type, priority, assigneeId, status, dueDate:new Date(dueDate)
         })
 
         return res.status(200).send({ success: true, message: "Task created successfully" })
@@ -271,11 +285,11 @@ export const createTask = async (req, res) => {
 }
 
 export const getMyTasks = async (req, res) => {
-    
-    try {
-        const [tasks] = await db.select().from(tasks).where(eq(tasks.assigneeId,req.user.userId))
 
-        return res.status(200).send({success:true,tasks})
+    try {
+        const [tasks] = await db.select().from(tasks).where(eq(tasks.assigneeId, req.user.memberId))
+
+        return res.status(200).send({ success: true, tasks })
 
     } catch (error) {
         console.log(error);
@@ -311,13 +325,13 @@ export const updateProject = async (req, res) => {
 
     try {
 
-        const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
+        const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
         )));
 
         if (!isValidProject) {
             return res.status(400).send({ success: false, message: "This is not your project" })
         }
-        const [project] = await db.select({ projectId: projects.id }).where(eq(projects.id, projectId));
+        const [project] = await db.select({ projectId: projects.id }).from(projects).where(eq(projects.id, projectId));
 
         if (!project) {
             return res.status(400).send({ success: false, message: "Task Id not found" })
@@ -339,7 +353,7 @@ export const updateProjectMember = async (req, res) => {
 
     try {
 
-        const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.userId), eq(projects.id, projectId)
+        const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.memberId), eq(projects.id, projectId)
         )));
 
         if (!isValidProject) {
@@ -374,7 +388,7 @@ export const updateTask = async (req, res) => {
     const { title, projectId, description, type, status, priority, assignee, dueDate } = req.body;
 
     try {
-        const isValidTask = await db.select({ workspaceName:workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
+        const isValidTask = await db.select({ workspaceName: workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
         )));
 
         if (!isValidTask) {
@@ -386,13 +400,13 @@ export const updateTask = async (req, res) => {
             return res.status(400).send({ success: false, message: "Project Id not found" })
         }
 
-        const [task] = await db.select({assignee:tasks.assigneeId}).from(tasks).where(eq(tasks.id, taskId));
+        const [task] = await db.select({ assignee: tasks.assigneeId }).from(tasks).where(eq(tasks.id, taskId));
 
         if (!task) {
             return res.status(400).send({ success: false, message: "Task not found" })
         }
 
-        const [workspaceUser] = await db.select({ id:workspaceUsers.id, email: users.email}).from(workspaceUsers).innerJoin(users,eq(workspaceUsers.userId,users.id)).where(and(eq(workspaceUsers.workspaceId, req.user.id),eq(users.email,assignee)))
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id, email: users.email }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(and(eq(workspaceUsers.workspaceId, req.user.id), eq(users.email, assignee)))
 
         if (!workspaceUser) {
             return res.status(400).send({ success: false, message: "User does not exists. Add members to team first" })
@@ -403,7 +417,7 @@ export const updateTask = async (req, res) => {
             await sendTaskInvitation(body)
         }
 
-        await db.update(tasks).set({ title, description, type, status, priority, assigneeId:workspaceUser.id, dueDate }).where(eq(tasks.id, taskId));
+        await db.update(tasks).set({ title, description, type, status, priority, assigneeId: workspaceUser.id, dueDate }).where(eq(tasks.id, taskId));
 
         return res.status(200).send({ success: true, message: "Task Updated Successfully." })
 
@@ -415,13 +429,13 @@ export const updateTask = async (req, res) => {
 
 export const updateTaskStatus = async (req, res) => {
     const { taskId } = req.params;
-    const { projectId, status} = req.body;
+    const { projectId, status } = req.body;
 
-    if(!taskId?.trim() || !projectId?.trim() || !status?.trim() ){
-        return res.status(400).send({success:false,message:"Required field not found."})
+    if (!taskId?.trim() || !projectId?.trim() || !status?.trim()) {
+        return res.status(400).send({ success: false, message: "Required field not found." })
     }
     try {
-        const isValidTask = await db.select({ workspaceName:workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
+        const isValidTask = await db.select({ workspaceName: workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
         )));
 
         if (!isValidTask) {
@@ -433,13 +447,13 @@ export const updateTaskStatus = async (req, res) => {
             return res.status(400).send({ success: false, message: "Project Id not found" })
         }
 
-        const [task] = await db.select({assignee:tasks.assigneeId}).from(tasks).where(eq(tasks.id, taskId));
+        const [task] = await db.select({ assignee: tasks.assigneeId }).from(tasks).where(eq(tasks.id, taskId));
 
         if (!task) {
             return res.status(400).send({ success: false, message: "Task not found" })
         }
 
-        await db.update(tasks).set({ status}).where(eq(tasks.id, taskId));
+        await db.update(tasks).set({ status }).where(eq(tasks.id, taskId));
 
         return res.status(200).send({ success: true, message: "Task status Updated Successfully." })
 
@@ -512,7 +526,7 @@ export const deleteTask = async (req, res) => {
 
     try {
 
-        const isValidTask = await db.select({ taskId: tasks.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(tasks.id, taskId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
+        const isValidTask = await db.select({ taskId: tasks.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(tasks.id, taskId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
         )));
 
         if (!isValidTask) {
@@ -553,7 +567,7 @@ export const deleteProjectMember = async (req, res) => {
     const { userId, projectId } = req.query;
 
     try {
-        const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.userId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
+        const isValidProject = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
         )));
 
         if (!isValidProject) {
@@ -586,7 +600,7 @@ export const addComments = async (req, res) => {
             return res.status(400).send({ success: false, message: "TaskId does not exist" })
         }
 
-        await db.insert(comments).values({ taskId, content, userId: req.user.userId })
+        await db.insert(comments).values({ taskId, content, userId: req.user.memberId })
 
         return res.status(201).send({ success: true, message: "Comment added successfully" })
 
