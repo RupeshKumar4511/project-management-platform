@@ -147,7 +147,7 @@ export const workspace = createApi({
         }),
         updateProject: builder.mutation({
             query: (data) => ({
-                url: `/update-project/${data.projectId}`,
+                url: `/update-project/${data.id}`,
                 method: 'PUT',
                 credentials:"include",
                 body: data
@@ -168,7 +168,7 @@ export const workspace = createApi({
         updateTaskStatus: builder.mutation({
             query: (data) => ({
                 url: `/update-task-status/${data.taskId}`,
-                method: 'PUT',
+                method: 'PATCH',
                 credentials:"include",
                 body: data
             }),
