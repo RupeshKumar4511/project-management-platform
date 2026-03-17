@@ -5,7 +5,7 @@ import { workspaceUsers } from "../models/workspace.model.js";
 const ensureWorkspaceUser = async (req, res, next) => {
     
     try {
-        const [workspaceUser] = await db.select({ userId: workspaceUsers.id,role:workspaceUsers.role , workspaceId: workspaceUsers.workspaceId}).from(workspaceUsers).where(eq(workspaceUsers.userId, req.user.id));
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id,role:workspaceUsers.role , workspaceId: workspaceUsers.workspaceId}).from(workspaceUsers).where(eq(workspaceUsers.userId, req.user.id));
 
         if (!workspaceUser) {
             return res.status(401).send({ success: false, message: `Unauthorized Request` })
@@ -13,7 +13,9 @@ const ensureWorkspaceUser = async (req, res, next) => {
 
         req.user.role = workspaceUser.role;
         req.user.workspaceId = workspaceUser.workspaceId;
-        req.user.userId = workspaceUser.userId
+        req.user.memberId = workspaceUser.id
+
+        console.log(req.user)
         
         next()
 
