@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { Plus, Search, FolderOpen } from "lucide-react";
 import ProjectCard from "../components/ProjectCard";
 import CreateProjectDialog from "../components/CreateProjectDialog";
+import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 
 export default function Projects() {
     
-    const projects = useSelector(
-        (state) => state?.workspace?.currentWorkspace?.projects || []
-    );
+    const { data: currentWorkspace} = useGetWorkspaceDetailsQuery();
+    const projects =  currentWorkspace?.details?.projects || []
+    
 
     const [filteredProjects, setFilteredProjects] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -24,7 +24,7 @@ export default function Projects() {
         if (searchTerm) {
             filtered = filtered.filter(
                 (project) =>
-                    project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                     project.description?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }

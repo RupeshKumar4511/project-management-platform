@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeftIcon, PlusIcon, SettingsIcon, BarChart3Icon, CalendarIcon, FileStackIcon, ZapIcon } from "lucide-react";
 import ProjectAnalytics from "../components/ProjectAnalytics";
@@ -7,6 +6,7 @@ import ProjectSettings from "../components/ProjectSettings";
 import CreateTaskDialog from "../components/CreateTaskDialog";
 import ProjectCalendar from "../components/ProjectCalendar";
 import ProjectTasks from "../components/ProjectTasks";
+import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 
 export default function ProjectDetail() {
 
@@ -15,7 +15,8 @@ export default function ProjectDetail() {
     const id = searchParams.get('id');
 
     const navigate = useNavigate();
-    const projects = useSelector((state) => state?.workspace?.currentWorkspace?.projects || []);
+    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
+    const projects = currentWorkspace?.details?.projects || [];
 
     const [project, setProject] = useState(null);
     const [tasks, setTasks] = useState([]);
@@ -27,11 +28,13 @@ export default function ProjectDetail() {
     }, [tab]);
 
     useEffect(() => {
+        
         if (projects && projects.length > 0) {
             const proj = projects.find((p) => p.id === id);
             setProject(proj);
             setTasks(proj?.tasks || []);
         }
+
     }, [id, projects]);
 
     const statusColors = {
@@ -62,7 +65,7 @@ export default function ProjectDetail() {
                         <ArrowLeftIcon className="w-4 h-4" />
                     </button>
                     <div className="flex items-center gap-3">
-                        <h1 className="text-xl font-medium">{project.name}</h1>
+                        <h1 className="text-xl font-medium">{project.title}</h1>
                         <span className={`px-2 py-1 rounded text-xs capitalize ${statusColors[project.status]}`} >
                             {project.status.replace("_", " ")}
                         </span>

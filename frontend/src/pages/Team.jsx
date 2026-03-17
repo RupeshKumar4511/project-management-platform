@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { UsersIcon, Search, UserPlus, Shield, Activity } from "lucide-react";
 import InviteMemberDialog from "../components/InviteMemberDialog";
-import { useSelector } from "react-redux";
+import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 
 const Team = () => {
 
@@ -9,17 +9,17 @@ const Team = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [users, setUsers] = useState([]);
-    const currentWorkspace = useSelector((state) => state?.workspace?.currentWorkspace || null);
-    const projects = currentWorkspace?.projects || [];
+    const { data: currentWorkspace} = useGetWorkspaceDetailsQuery();
+    const projects = currentWorkspace?.details?.projects || [];
 
     const filteredUsers = users.filter(
         (user) =>
-            user?.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user?.user?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user?.user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     useEffect(() => {
-        setUsers(currentWorkspace?.members || []);
+        setUsers(currentWorkspace?.details?.workspaceUsers || []);
         setTasks(currentWorkspace?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
     }, [currentWorkspace]);
 
@@ -138,7 +138,7 @@ const Team = () => {
                                                     className="size-7 rounded-full bg-gray-200 dark:bg-zinc-800"
                                                 />
                                                 <span className="text-sm text-zinc-800 dark:text-white truncate">
-                                                    {user.user?.name || "Unknown User"}
+                                                    {user.user?.username || "Unknown User"}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-2.5 whitespace-nowrap text-sm text-gray-500 dark:text-zinc-400">
@@ -146,12 +146,12 @@ const Team = () => {
                                             </td>
                                             <td className="px-6 py-2.5 whitespace-nowrap">
                                                 <span
-                                                    className={`px-2 py-1 text-xs rounded-md ${user.role === "ADMIN"
+                                                    className={`px-2 py-1 text-xs rounded-md ${user.role.split(":")[1].toUpperCase() === "ADMIN"
                                                             ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
                                                             : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
                                                         }`}
                                                 >
-                                                    {user.role || "User"}
+                                                    {user.role.split(":")[1].toUpperCase() || "User"}
                                                 </span>
                                             </td>
                                         </tr>
