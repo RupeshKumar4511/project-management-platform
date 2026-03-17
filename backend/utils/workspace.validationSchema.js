@@ -47,7 +47,7 @@ export const joinWorkspaceSchema = {
 }
 
 export const createProjectSchema = {
-    projectName: {
+    title: {
         trim: true,
         notEmpty: {
             errorMessage: "project name is required"
@@ -57,26 +57,10 @@ export const createProjectSchema = {
         },
         isLength: {
             options: {
-                min: 5,
+                min: 2,
                 max: 255
             },
-            errorMessage: "project name should be 5-255 characters long."
-        }
-    },
-    workspaceId: {
-        trim: true,
-        notEmpty: {
-            errorMessage: "workspace Id is required"
-        },
-        isString: {
-            errorMessage: "workspace Id must be string"
-        },
-        isLength: {
-            options: {
-                min: 36,
-                max: 36
-            },
-            errorMessage: "workspace id should be 36 characters long."
+            errorMessage: "project name should be 2-255 characters long."
         }
     },
     projectLink: {
@@ -119,7 +103,7 @@ export const createProjectSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['PLANNING','ACTIVE','COMPLETED','ON_HOLD','CANCELLED']], 
+            options: [['PLANNING', 'ACTIVE', 'COMPLETED', 'ON_HOLD', 'CANCELLED']],
             errorMessage: 'Invalid status provided'
         }
     },
@@ -129,35 +113,34 @@ export const createProjectSchema = {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['MEDIUM','LOW','HIGH']], 
+            options: [['MEDIUM', 'LOW', 'HIGH']],
             errorMessage: 'Invalid priority provided'
         }
     },
     projectLead: {
         trim: true,
         notEmpty: {
-            errorMessage: "project_leader id is required"
+            errorMessage: "project_leader email is required"
         },
         isString: {
-            errorMessage: "project_leader id must be string"
+            errorMessage: "project_leader email must be string"
         },
         isLength: {
             options: {
-                min: 36,
-                max: 36
+                max: 255
             },
-            errorMessage: "project_leader id should be 36 characters long."
+            errorMessage: "project_leader email should not exceeds 255 characters."
         }
     },
     startDate: {
         trim: true,
         isDate: {
             options: {
-                format: 'DD-MM-YYYY',
+                format: 'YYYY-MM-DD',
                 strictMode: true,
                 delimiters: ['-']
             },
-            errorMessage: "start date must be in DD-MM-YYYY"
+            errorMessage: "start date must be in YYYY-MM-DD"
         }
     },
     endDate: {
@@ -167,16 +150,16 @@ export const createProjectSchema = {
         },
         isDate: {
             options: {
-                format: 'DD-MM-YYYY',
+                format: 'YYYY-MM-DD',
                 strictMode: true,
                 delimiters: ['-']
             },
-            errorMessage: "end date must be in DD-MM-YYYY"
+            errorMessage: "end date must be in YYYY-MM-DD"
         }
     },
-    teamMembers:{
-        trim:true,
-        isArray:{
+    teamMembers: {
+        trim: true,
+        isArray: {
             errorMessage: "teamMembers must be an array"
         }
     }
@@ -237,7 +220,7 @@ export const createTaskSchema = {
             errorMessage: "type is required"
         },
         isIn: {
-            options: [['TASK','FEATURE','BUG','IMPROVEMENT','OTHER']], 
+            options: [['TASK', 'FEATURE', 'BUG', 'IMPROVEMENT', 'OTHER']],
             errorMessage: 'Invalid type provided'
         }
     },
@@ -247,7 +230,7 @@ export const createTaskSchema = {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['MEDIUM','LOW','HIGH']], 
+            options: [['MEDIUM', 'LOW', 'HIGH']],
             errorMessage: 'Invalid priority provided'
         }
     },
@@ -257,24 +240,24 @@ export const createTaskSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['TODO','IN_PROGRESS','DONE']], 
+            options: [['TODO', 'IN_PROGRESS', 'DONE']],
             errorMessage: 'Invalid status provided'
         }
     },
-    assignee: {
+    assigneeId: {
         trim: true,
         notEmpty: {
-            errorMessage: "assignee is required"
+            errorMessage: "assigneeId is required"
         },
         isString: {
-            errorMessage: "assignee must be string"
+            errorMessage: "assigneeId must be string"
         },
         isLength: {
             options: {
-                min: 3,
-                max: 32
+                min: 36,
+                max: 36
             },
-            errorMessage: "assignee name should be 3-32 characters long."
+            errorMessage: "assigneeId should be 36 characters long."
         }
     },
     dueDate: {
@@ -284,12 +267,13 @@ export const createTaskSchema = {
         },
         isDate: {
             options: {
-                format: 'DD-MM-YYYY',
+                format: 'YYYY-MM-DD',
                 strictMode: true,
                 delimiters: ['-']
             },
-            errorMessage: "due date must be in DD-MM-YYYY"
-        }
+            errorMessage: "due date must be in YYYY-MM-DD"
+        },
+        toDate: true
     }
 }
 
@@ -345,11 +329,11 @@ export const addCommentSchema = {
 }
 
 export const updateWorkspaceSchema = {
-    workspaceId:{
+    workspaceId: {
         in: ['params'],
         trim: true,
         notEmpty: {
-            errorMessage : "workspaceId is required"
+            errorMessage: "workspaceId is required"
         },
         isString: {
             errorMessage: "workspace id must be string"
@@ -390,11 +374,11 @@ export const updateWorkspaceSchema = {
 }
 
 export const updateProjectSchema = {
-    projectId:{
-        in:['params'],
+    projectId: {
+        in: ['params'],
         trim: true,
-        isEmpty:{
-            errorMessage: "project Id is required"
+        notEmpty: {
+            errorMessage: "projectId is required"
         },
         isString: {
             errorMessage: "project id must be string"
@@ -407,36 +391,19 @@ export const updateProjectSchema = {
             errorMessage: "project id should be 36 characters long."
         }
     },
-    projectName: {
+    title: {
         trim: true,
         notEmpty: {
-            errorMessage: "project name is required"
+            errorMessage: "project title is required"
         },
         isString: {
-            errorMessage: "project name must be string"
+            errorMessage: "project title must be string"
         },
         isLength: {
             options: {
-                min: 5,
                 max: 255
             },
-            errorMessage: "project name should be 5-255 characters long."
-        }
-    },
-    workspaceName: {
-        trim: true,
-        notEmpty: {
-            errorMessage: "workspace name is required"
-        },
-        isString: {
-            errorMessage: "workspace name must be string"
-        },
-        isLength: {
-            options: {
-                min: 5,
-                max: 32
-            },
-            errorMessage: "workspace name should be 5-32 characters long."
+            errorMessage: "project title should not exceeds 255 characters."
         }
     },
     projectLink: {
@@ -479,7 +446,7 @@ export const updateProjectSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['PLANNING','ACTIVE','COMPLETED','ON_HOLD','CANCELLED']], 
+            options: [['PLANNING', 'ACTIVE', 'COMPLETED', 'ON_HOLD', 'CANCELLED']],
             errorMessage: 'Invalid status provided'
         }
     },
@@ -489,48 +456,31 @@ export const updateProjectSchema = {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['MEDIUM','LOW','HIGH']], 
+            options: [['MEDIUM', 'LOW', 'HIGH']],
             errorMessage: 'Invalid priority provided'
         }
     },
     startDate: {
         trim: true,
-        isDate: {
-            options: {
-                format: 'DD-MM-YYYY',
-                strictMode: true,
-                delimiters: ['-']
-            },
-            errorMessage: "start date must be in DD-MM-YYYY"
-        }
+        // Use isISO8601 instead of isDate for full timestamp strings
+        isISO8601: {
+            options: { strict: true },
+            errorMessage: "Start date must be a valid ISO8601 string (YYYY-MM-DDTHH:mm:ss.sssZ)"
+        },
+        // This is the CRITICAL fix for your "value.toISOString is not a function" error
+        toDate: true
     },
     endDate: {
         trim: true,
         notEmpty: {
             errorMessage: "endDate name is required"
         },
-        isDate: {
-            options: {
-                format: 'DD-MM-YYYY',
-                strictMode: true,
-                delimiters: ['-']
-            },
-            errorMessage: "end date must be in DD-MM-YYYY"
-        }
-    },
-    progress:{
-        optional:{
-            options:{
-                checkFalsy:true
-            }
+        isISO8601: {
+            options: { strict: true },
+            errorMessage: "Start date must be a valid ISO8601 string (YYYY-MM-DDTHH:mm:ss.sssZ)"
         },
-        trim: true,
-        notEmpty:{
-            errorMessage: "progress must not be empty"
-        },
-        isNumeric:{
-            errorMessage:"progress percentage must be numeric"
-        }
+        
+        toDate: true
     }
 }
 
@@ -590,7 +540,7 @@ export const updateTaskSchema = {
             errorMessage: "type is required"
         },
         isIn: {
-            options: [['TASK','FEATURE','BUG','IMPROVEMENT','OTHER']], 
+            options: [['TASK', 'FEATURE', 'BUG', 'IMPROVEMENT', 'OTHER']],
             errorMessage: 'Invalid type provided'
         }
     },
@@ -600,7 +550,7 @@ export const updateTaskSchema = {
             errorMessage: "priority is required"
         },
         isIn: {
-            options: [['MEDIUM','LOW','HIGH']], 
+            options: [['MEDIUM', 'LOW', 'HIGH']],
             errorMessage: 'Invalid priority provided'
         }
     },
@@ -610,7 +560,7 @@ export const updateTaskSchema = {
             errorMessage: "status is required"
         },
         isIn: {
-            options: [['TODO','IN_PROGRESS','DONE']], 
+            options: [['TODO', 'IN_PROGRESS', 'DONE']],
             errorMessage: 'Invalid status provided'
         }
     },
@@ -648,7 +598,7 @@ export const updateTaskSchema = {
 
 export const addTeamMemberToWorkspaceSchema = {
     email: {
-        trim:true,
+        trim: true,
         notEmpty: {
             errorMessage: "email is required."
         },
@@ -673,7 +623,7 @@ export const addTeamMemberToWorkspaceSchema = {
             errorMessage: "role is required"
         },
         isIn: {
-            options: [['org:admin','org:member']], 
+            options: [['org:admin', 'org:member']],
             errorMessage: 'Invalid role provided'
         }
     },
@@ -681,7 +631,7 @@ export const addTeamMemberToWorkspaceSchema = {
 
 export const updateProjectMemberSchema = {
     email: {
-        trim:true,
+        trim: true,
         notEmpty: {
             errorMessage: "email is required."
         },
@@ -702,7 +652,7 @@ export const updateProjectMemberSchema = {
     },
     projectId: {
         trim: true,
-        isEmpty:{
+        isEmpty: {
             errorMessage: "project Id is required"
         },
         isString: {
