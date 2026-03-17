@@ -11,8 +11,17 @@ import ErrorPage from "./ErrorPage";
 export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
 
     const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
-    const project = currentWorkspace?.projects.find((p) => p.id === projectId);
-    const teamMembers = project?.members || [];
+    const project = currentWorkspace?.details?.projects.find((p) => p.id === projectId);
+    const members = project.projectMembers.map(member => {
+        if (member.userId != null) {
+            return member.userId
+        }
+    });
+    const teamMembers = currentWorkspace.details.workspaceUsers.map(user => {
+        if (members.includes(user.id)) {
+            return {email : user.user.email, userId : user.id};
+        }
+    })
 
     const [createTask, { isLoading, isSuccess, isError }] = useCreateTaskMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,25 +40,25 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             status: "TODO",
             priority: "MEDIUM",
             assigneeId: "",
-            due_date: ""
+            dueDate: ""
         }
     });
 
-    const due_date = watch("due_date");
+    const dueDate = watch("dueDate");
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
 
         try {
 
-            createTask(data)
+            createTask({...data,projectId:project.id})
             setShowCreateTask(false);
 
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsSubmitting(false);
         }
-
-        setIsSubmitting(false);
     };
     const handleClick = () => {
         reset({
@@ -59,7 +68,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             status: "TODO",
             priority: "MEDIUM",
             assigneeId: "",
-            due_date: ""
+            dueDate: ""
         });
         setTimeout(() => {
             navigate('/app/workspace/projects');
@@ -150,8 +159,8 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                             >
                                 <option value="">Unassigned</option>
                                 {teamMembers.map((member) => (
-                                    <option key={member?.user.id} value={member?.user.id}>
-                                        {member?.user.email}
+                                    <option key={member?.userId} value={member?.userId}>
+                                        {member?.email}
                                     </option>
                                 ))}
                             </select>
@@ -181,15 +190,15 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
                             <input
                                 type="date"
-                                {...register("due_date")}
+                                {...register("dueDate")}
                                 min={new Date().toISOString().split("T")[0]}
                                 className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"
                             />
                         </div>
 
-                        {due_date && (
+                        {dueDate && (
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                {format(new Date(due_date), "PPP")}
+                                {format(new Date(dueDate), "PPP")}
                             </p>
                         )}
 

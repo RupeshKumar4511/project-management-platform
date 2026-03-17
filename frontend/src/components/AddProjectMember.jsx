@@ -13,7 +13,17 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
     const { data: currentWorkspace, isLoading, error } = useGetWorkspaceDetailsQuery();
 
     const project = currentWorkspace?.details.projects.find((p) => p.id === id);
-    const projectMembersEmails = project?.projectMembers.map((member) => member.user.email);
+
+    const members = project.projectMembers.map(member => {
+        if(member.userId != null){
+            return member.userId
+        }
+    });
+    const projectMembersEmails = currentWorkspace.details.workspaceUsers.map(user =>{
+        if(members.includes(user.id)){
+            return user.user.email;
+        }
+    })
 
     const [email, setEmail] = useState('');
     const [isAdding, setIsAdding] = useState(false);
@@ -61,7 +71,7 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
                             {/* List All non project members from current workspace */}
                             <select value={email} onChange={(e) => setEmail(e.target.value)} className="pl-10 mt-1 w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 text-sm placeholder-zinc-400 dark:placeholder-zinc-500 py-2 focus:outline-none focus:border-blue-500" required >
                                 <option value="">Select a member</option>
-                                {currentWorkspace?.workspaceUsers
+                                {currentWorkspace?.details?.workspaceUsers
                                     .filter((member) => !projectMembersEmails.includes(member.user.email))
                                     .map((member) => (
                                         <option key={member.user.id} value={member.user.email}> {member.user.email} </option>

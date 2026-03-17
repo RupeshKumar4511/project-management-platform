@@ -10,7 +10,7 @@ import ErrorPage from "./ErrorPage";
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
     const { data: currentWorkspace, error: getError} = useGetWorkspaceDetailsQuery();
     const navigate = useNavigate()
-    const [createProject, { isLoading, isSuccess, isError, error:postError }] = useCreateProjectMutation();
+    const [createProject, { isLoading, isSuccess, isError }] = useCreateProjectMutation();
     const {
         register,
         handleSubmit,
@@ -20,20 +20,20 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
         formState: { isSubmitting }
     } = useForm({
         defaultValues: {
-            name: "",
-            project_link: "",
+            title: "",
+            projectLink: "",
             description: "",
             status: "PLANNING",
             priority: "MEDIUM",
-            start_date: "",
-            end_date: "",
-            team_members: [],
-            team_lead: "",
+            startDate: "",
+            endDate: "",
+            teamMembers: [],
+            projectLead: "",
         }
     });
 
-    const teamMembers = watch("team_members");
-    const startDate = watch("start_date");
+    const teamMembers = watch("teamMembers");
+    const startDate = watch("startDate");
 
     const onSubmit = async (data) => {
         createProject(data)
@@ -41,22 +41,22 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const removeTeamMember = (email) => {
         setValue(
-            "team_members",
+            "teamMembers",
             teamMembers.filter((m) => m !== email)
         );
     };
 
     const handleClick = () => {
         reset({
-            name: "",
-            project_link: "",
+            title: "",
+            projectLink: "",
             description: "",
             status: "PLANNING",
             priority: "MEDIUM",
-            start_date: "",
-            end_date: "",
-            team_members: [],
-            team_lead: ""
+            startDate: "",
+            endDate: "",
+            teamMembers: [],
+            projectLead: ""
         });
         setTimeout(() => {
             navigate('/app/workspace/projects');
@@ -107,7 +107,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     <div>
                         <label className="block text-sm mb-1">Project Name</label>
                         <input
-                            {...register("name", { required: true })}
+                            {...register("title", { required: true })}
                             placeholder="Enter project name"
                             className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                         />
@@ -117,7 +117,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     <div>
                         <label className="block text-sm mb-1">Project Link</label>
                         <input
-                            {...register("project_link")}
+                            {...register("projectLink")}
                             placeholder="Enter project link"
                             className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                         />
@@ -167,7 +167,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             <label className="block text-sm mb-1">Start Date</label>
                             <input
                                 type="date"
-                                {...register("start_date")}
+                                {...register("startDate")}
                                 className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                             />
                         </div>
@@ -176,7 +176,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             <label className="block text-sm mb-1">End Date</label>
                             <input
                                 type="date"
-                                {...register("end_date")}
+                                {...register("endDate")}
                                 min={startDate}
                                 className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                             />
@@ -188,19 +188,19 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     <div>
                         <label className="block text-sm mb-1">Project Lead</label>
                         <select
-                            {...register("team_lead")}
+                            {...register("projectLead")}
                             onChange={(e) => {
                                 const email = e.target.value;
-                                setValue("team_lead", email);
+                                setValue("projectLead", email);
 
                                 if (email && !teamMembers.includes(email)) {
-                                    setValue("team_members", [...teamMembers, email]);
+                                    setValue("teamMembers", [...teamMembers, email]);
                                 }
                             }}
                             className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                         >
                             <option value="">No lead</option>
-                            {currentWorkspace?.members?.map((member) => (
+                            {currentWorkspace?.details?.workspaceUsers.map((member) => (
                                 <option key={member.user.email} value={member.user.email}>
                                     {member.user.email}
                                 </option>
@@ -218,13 +218,13 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             onChange={(e) => {
                                 const email = e.target.value;
                                 if (email && !teamMembers.includes(email)) {
-                                    setValue("team_members", [...teamMembers, email]);
+                                    setValue("teamMembers", [...teamMembers, email]);
                                 }
                             }}
                         >
                             <option value="">Add team members</option>
 
-                            {currentWorkspace?.members
+                            {currentWorkspace?.details?.workspaceUsers
                                 ?.filter((m) => !teamMembers.includes(m.user.email))
                                 .map((member) => (
                                     <option key={member.user.email} value={member.user.email}>

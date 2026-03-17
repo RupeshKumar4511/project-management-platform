@@ -203,14 +203,14 @@ const ProjectTasks = ({ tasks }) => {
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-2">
-                                                        <img src={task.assignee?.image} className="size-5 rounded-full" alt="avatar" />
-                                                        {task.assignee?.name || "-"}
+                                                        <img src={task?.assignee?.image} className="size-5 rounded-full" alt="avatar" />
+                                                        {task?.assignee?.name || "-"}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
                                                         <CalendarIcon className="size-4" />
-                                                        {format(new Date(task.due_date), "dd MMMM")}
+                                                        {format(new Date(task.dueDate), "dd MMMM")}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -268,7 +268,7 @@ const ProjectTasks = ({ tasks }) => {
 
                                         <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                                             <CalendarIcon className="size-4" />
-                                            {format(new Date(task.due_date), "dd MMMM")}
+                                            {format(new Date(task.dueDate), "dd MMMM")}
                                         </div>
                                     </div>
                                 );

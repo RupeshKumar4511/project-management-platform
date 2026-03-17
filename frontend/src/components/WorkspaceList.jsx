@@ -8,7 +8,7 @@ import ErrorPage from "./ErrorPage";
 
 export default function WorkspaceList() {
   const formRef = useRef(null);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate()
   const [joinWorkspace, { isLoading, isSuccess, isError,error }] = useJoinWorkspaceMutation();
 
@@ -23,9 +23,6 @@ export default function WorkspaceList() {
     )
   }
   if (isSuccess) {
-    reset({
-      workspaceName: '',
-    })
     setTimeout(() => {
       navigate('/app/workspace');
     }, 1000)

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { GitCommit, MessageSquare, Clock, Bug, Zap, Square } from "lucide-react";
 import { format } from "date-fns";
 import { useSelector } from "react-redux";
+import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 
 const typeIcons = {
     BUG: { icon: Bug, color: "text-red-500 dark:text-red-400" },
@@ -19,19 +20,25 @@ const statusColors = {
 
 const RecentActivity = () => {
     const [tasks, setTasks] = useState([]);
-    const { currentWorkspace } = useSelector((state) => state.workspace);
+    const { data: currentWorkspace} = useGetWorkspaceDetailsQuery();
 
     const getTasksFromCurrentWorkspace = () => {
 
         if (!currentWorkspace) return;
 
-        const tasks = currentWorkspace.projects.flatMap((project) => project.tasks.map((task) => task));
+        const tasks = currentWorkspace?.details?.projects.flatMap((project) => project.tasks.map((task) => task));
         setTasks(tasks);
     };
 
     useEffect(() => {
         getTasksFromCurrentWorkspace();
     }, [currentWorkspace]);
+
+    const getTaskAssigneeName = (assigneeId) =>{
+        const user = currentWorkspace?.details?.workspaceUsers?.filter(user=>user.id===assigneeId)[0];
+        console.log(user)
+        return user.user.username;
+    }
 
     return (
         <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-lg transition-all overflow-hidden">
@@ -70,12 +77,12 @@ const RecentActivity = () => {
                                             </div>
                                             <div className="flex items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
                                                 <span className="capitalize">{task.type.toLowerCase()}</span>
-                                                {task.assignee && (
+                                                {task.assigneeId && (
                                                     <div className="flex items-center gap-1">
                                                         <div className="w-4 h-4 bg-zinc-300 dark:bg-zinc-700 rounded-full flex items-center justify-center text-[10px] text-zinc-800 dark:text-zinc-200">
-                                                            {task.assignee.name[0].toUpperCase()}
+                                                            {getTaskAssigneeName(task.assigneeId)[0].toUpperCase()}
                                                         </div>
-                                                        {task.assignee.name}
+                                                        {getTaskAssigneeName(task.assigneeId).toUpperCase()}
                                                     </div>
                                                 )}
                                                 <span>

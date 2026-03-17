@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Calendar, UsersIcon, FolderOpen } from "lucide-react";
 import { format } from "date-fns";
-import { useSelector } from "react-redux";
 import CreateProjectDialog from "./CreateProjectDialog";
+import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 
 const ProjectOverview = () => {
     const statusColors = {
@@ -20,12 +20,12 @@ const ProjectOverview = () => {
         HIGH: "border-green-300 text-green-700 dark:border-green-500 dark:text-green-400",
     };
 
-    const currentWorkspace = useSelector((state) => state?.workspace?.currentWorkspace || null);
+    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [projects, setProjects] = useState([]);
 
     useEffect(() => {
-        setProjects(currentWorkspace?.projects || []);
+        setProjects(currentWorkspace?.details?.projects || []);
     }, [currentWorkspace]);
 
     return currentWorkspace && (
@@ -56,7 +56,7 @@ const ProjectOverview = () => {
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
-                                            {project.name}
+                                            {project.title}
                                         </h3>
                                         <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
                                             {project.description || 'No description'}
@@ -72,16 +72,16 @@ const ProjectOverview = () => {
 
                                 <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-500 mb-3">
                                     <div className="flex items-center gap-4">
-                                        {project.members?.length > 0 && (
+                                        {project.projectMembers?.length > 0 && (
                                             <div className="flex items-center gap-1">
                                                 <UsersIcon className="w-3 h-3" />
-                                                {project.members.length} members
+                                                {project.projectMembers.length} members
                                             </div>
                                         )}
-                                        {project.end_date && (
+                                        {project.endDate && (
                                             <div className="flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" />
-                                                {format(new Date(project.end_date), "MMM d, yyyy")}
+                                                {format(new Date(project.endDate), "MMM d, yyyy")}
                                             </div>
                                         )}
                                     </div>
