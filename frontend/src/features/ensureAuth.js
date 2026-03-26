@@ -28,6 +28,7 @@ const  ensureAuth = async () => {
     } else if(data.message == 'Token expired'){
         const res = await generateNewRefreshToken();
         if(res.code == 'SIGNED_OUT'){
+          localStorage.setItem("user", JSON.stringify({logout:true}));
           alert("You are Signed out. Please Login to continue");
           window.location.href='/'
           return data;
