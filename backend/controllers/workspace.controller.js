@@ -435,13 +435,14 @@ export const updateTaskStatus = async (req, res) => {
         return res.status(400).send({ success: false, message: "Required field not found." })
     }
     try {
-        const isValidTask = await db.select({ workspaceName: workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
+        const isValidTask = await db.select({ workspaceName: workspaces.name }).from(workspaces).innerJoin(projects, eq(projects.workspaceId,workspaces.id)).innerJoin(tasks, eq(tasks.projectId,projects.id)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
         )));
+        console.log(isValidTask)
 
         if (!isValidTask) {
             return res.status(400).send({ success: false, message: "Access Denied" })
         }
-        const [project] = await db.select({ projectId: projects.id }).where(eq(projects.id, projectId));
+        const [project] = await db.select({ projectId: projects.id }).from(projects).where(eq(projects.id, projectId));
 
         if (!project) {
             return res.status(400).send({ success: false, message: "Project Id not found" })

@@ -64,17 +64,17 @@ export const signUp = async (req, res) => {
 
 // login controller
 export const login = async (req, res) => {
-    const { username, password } = req.body;
+    const { username:identifier, password } = req.body;
     const errorMsg = { success: false, message: "Username or Password is Wrong" };
 
     try {
-        const [user] = await db.select().from(users).where(or(eq(users.username, username), eq(users.email, username)))
+        const [user] = await db.select().from(users).where(or(eq(users.username, identifier), eq(users.email, identifier)))
 
         if (!user) {
             return res.status(404).send(errorMsg)
         }
 
-        const isPasswordMatch = bcrypt.compare(password, user.password)
+        const isPasswordMatch = await bcrypt.compare(password, user.password)
 
         if (!isPasswordMatch) {
             return res.status(401).send(errorMsg)
