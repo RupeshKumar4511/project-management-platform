@@ -1,25 +1,26 @@
 import { format } from "date-fns";
 import toast from "react-hot-toast";
-import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { CalendarIcon, MessageCircle, PenIcon } from "lucide-react";
 import { assets } from "../assets/assets";
+import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
+import { CgProfile } from "react-icons/cg";
 
 const TaskDetails = () => {
 
+    const { data: currentWorkspace, isSuccess } = useGetWorkspaceDetailsQuery();
     const [searchParams] = useSearchParams();
     const projectId = searchParams.get("projectId");
     const taskId = searchParams.get("taskId");
 
-    const user = { id : 'user_1'}
+    const user = { id: 'user_1' }
     const [task, setTask] = useState(null);
     const [project, setProject] = useState(null);
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
     const [loading, setLoading] = useState(true);
 
-    const { currentWorkspace } = useSelector((state) => state.workspace);
 
     const fetchComments = async () => {
 
@@ -28,15 +29,17 @@ const TaskDetails = () => {
     const fetchTaskDetails = async () => {
         setLoading(true);
         if (!projectId || !taskId) return;
+        if (isSuccess) {
+            const proj = currentWorkspace?.details?.projects.find((p) => p.id === projectId);
+            if (!proj) return;
 
-        const proj = currentWorkspace.projects.find((p) => p.id === projectId);
-        if (!proj) return;
+            const tsk = proj.tasks.find((t) => t.id === taskId);
+            if (!tsk) return;
 
-        const tsk = proj.tasks.find((t) => t.id === taskId);
-        if (!tsk) return;
+            setTask(tsk);
+            setProject(proj);
+        }
 
-        setTask(tsk);
-        setProject(proj);
         setLoading(false);
     };
 
@@ -51,7 +54,7 @@ const TaskDetails = () => {
             await new Promise((resolve) => setTimeout(resolve, 2000));
 
             const dummyComment = { id: Date.now(), user: { id: 1, name: "User", image: assets.profile_img_a }, content: newComment, createdAt: new Date() };
-            
+
             setComments((prev) => [...prev, dummyComment]);
             setNewComment("");
             toast.dismissAll();
@@ -62,8 +65,12 @@ const TaskDetails = () => {
             console.error(error);
         }
     };
+    const getUserNameById = (assigneeId) => {
+        const user = currentWorkspace?.details?.workspaceUsers?.filter(users => users.id == assigneeId)[0];
+        return user.user.username;
+    }
 
-    useEffect(() => { fetchTaskDetails(); }, [taskId]);
+    useEffect(() => { fetchTaskDetails(); }, [taskId, currentWorkspace]);
 
     useEffect(() => {
         if (taskId && task) {
@@ -149,12 +156,12 @@ const TaskDetails = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 dark:text-zinc-300">
                         <div className="flex items-center gap-2">
-                            <img src={task.assignee?.image} className="size-5 rounded-full" alt="avatar" />
-                            {task.assignee?.name || "Unassigned"}
+                            <CgProfile className="size-5 rounded-full" alt="avatar" />
+                            {getUserNameById(task.assigneeId) ||  "Unassigned"}
                         </div>
                         <div className="flex items-center gap-2">
                             <CalendarIcon className="size-4 text-gray-500 dark:text-zinc-500" />
-                            Due : {format(new Date(task.due_date), "dd MMM yyyy")}
+                            Due : {format(new Date(task.dueDate), "dd MMM yyyy")}
                         </div>
                     </div>
                 </div>
@@ -164,11 +171,11 @@ const TaskDetails = () => {
                     <div className="p-4 rounded-md bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-200 border border-gray-300 dark:border-zinc-800 ">
                         <p className="text-xl font-medium mb-4">Project Details</p>
                         <h2 className="text-gray-900 dark:text-zinc-100 flex items-center gap-2"> <PenIcon className="size-4" /> {project.name}</h2>
-                        <p className="text-xs mt-3">Project Start Date: {format(new Date(project.start_date), "dd MMM yyyy")}</p>
+                        <p className="text-xs mt-3">Project Start Date: {format(new Date(project.startDate), "dd MMM yyyy")}</p>
                         <div className="flex flex-wrap gap-4 text-sm text-gray-500 dark:text-zinc-400 mt-3">
                             <span>Status: {project.status}</span>
                             <span>Priority: {project.priority}</span>
-                            <span>Progress: {project.progress}%</span>
+                            <span>Progress: {project.progress || 0}%</span>
                         </div>
                     </div>
                 )}

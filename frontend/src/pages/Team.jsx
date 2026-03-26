@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { UsersIcon, Search, UserPlus, Shield, Activity } from "lucide-react";
 import InviteMemberDialog from "../components/InviteMemberDialog";
 import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
-
+import { CgProfile } from "react-icons/cg";
 const Team = () => {
 
     const [tasks, setTasks] = useState([]);
@@ -20,7 +20,7 @@ const Team = () => {
 
     useEffect(() => {
         setUsers(currentWorkspace?.details?.workspaceUsers || []);
-        setTasks(currentWorkspace?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
+        setTasks(currentWorkspace?.details?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
     }, [currentWorkspace]);
 
     return (
@@ -132,8 +132,7 @@ const Team = () => {
                                             className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors"
                                         >
                                             <td className="px-6 py-2.5 whitespace-nowrap flex items-center gap-3">
-                                                <img
-                                                    src={user.user.image}
+                                                <CgProfile
                                                     alt={user.user.name}
                                                     className="size-7 rounded-full bg-gray-200 dark:bg-zinc-800"
                                                 />
