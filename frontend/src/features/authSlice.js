@@ -48,12 +48,34 @@ export const signOut = createAsyncThunk('auth/signOut', async (userData,thunkAPI
         const data = await response.json()
         if(data.code == 'SIGNED_OUT'){
           alert("You are Signed out. Please Login to continue");
+          localStorage.setItem("user", JSON.stringify({logout:true}));
           window.location.href = '/'; 
           return data;
         }
         if (!response.ok) {
             return thunkAPI.rejectWithValue(data.message || "sign-out failed");
         }
+        return data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue(error.message);
+    }
+})
+
+export const updateUser = createAsyncThunk('auth/update-user', async (userData,thunkAPI) => {
+    try {
+        await ensureAuth();
+        const response = await fetch('http://localhost:3000/api/v1/users/update', {
+            method: "PATCH",
+            headers: { "Content-Type": 'application/json' },
+            credentials: "include",
+            body: JSON.stringify(userData)
+        })
+        const data = await response.json()
+        if (!response.ok) {
+            return thunkAPI.rejectWithValue(data.message || "failed to update username");
+        }
+        await ensureAuth();
+        window.location.reload()
         return data;
     } catch (error) {
         return thunkAPI.rejectWithValue(error.message);
@@ -143,6 +165,7 @@ const authSlice = createSlice({
         resetPasswordResponse: {},
         authResponse: parsedUser,
         tempAuthResponse: {},
+        updateUserResponse : {},
         error: {
             signUpError: "",
             authError: "",
@@ -151,6 +174,7 @@ const authSlice = createSlice({
             sendMail2Error:"",
             verifyUserError: "",
             resetPasswordError: "",
+            updateUserError: ""
         }
 
     },
@@ -277,6 +301,19 @@ const authSlice = createSlice({
             .addCase(resetPassword.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error.resetPasswordError = action.payload || action.error.message || "Something went wrong.";
+
+            })
+            .addCase(updateUser.pending, (state) => {
+                state.isLoading = true;
+            })
+            .addCase(updateUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.error.updateUserError = '';
+                state.updateUserResponse = action.payload
+            })
+            .addCase(updateUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error.updateUserError = action.payload || action.error.message || "Something went wrong.";
 
             })
     })
