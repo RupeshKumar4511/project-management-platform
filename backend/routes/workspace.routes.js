@@ -1,5 +1,5 @@
 import express from 'express';
-import { createWorkspace, joinWorkspace, createProject, createTask, addTeamMemberToWorkspace, addMemberToProject, addComments, getFullWorkspaceDetails, updateWorkspace, updateProject, updateTask, updateProjectMember, deleteWorkspace, deleteProject, deleteTask, deleteComments, deleteProjectMember, deleteWorkspaceMember, getMyTasks, getComments } from '../controllers/workspace.controller.js';
+import { createWorkspace, joinWorkspace, createProject, createTask, addTeamMemberToWorkspace, addMemberToProject, addComments, getFullWorkspaceDetails, updateWorkspace, updateProject, updateTask, updateProjectMember, deleteWorkspace, deleteProject, deleteTask, deleteComments, deleteProjectMember, deleteWorkspaceMember, getMyTasks, getComments, updateTaskStatus } from '../controllers/workspace.controller.js';
 import { checkSchema } from 'express-validator';
 import { workspaceSchema, joinWorkspaceSchema, createProjectSchema, createTaskSchema, addTeamMemberToWorkspaceSchema, updateProjectMemberSchema, addCommentSchema, updateWorkspaceSchema, updateProjectSchema, updateTaskSchema } from '../utils/workspace.validationSchema.js';
 import { schemaValidation } from '../middleware/schema.validation.js'
@@ -21,7 +21,7 @@ router.route('/get-details').get(ensureWorkspaceUser, restrictTo(['org:admin', "
 router.route('/update-workspace/:workspaceId').put(ensureWorkspaceUser, restrictTo(["org:admin",]), checkSchema(updateWorkspaceSchema), schemaValidation, updateWorkspace)
 router.route('/update-project/:projectId').put(ensureWorkspaceUser, restrictTo(["org:admin", "org:member"]), checkSchema(updateProjectSchema), schemaValidation, updateProject)
 router.route('/update-task/:taskId').put(ensureWorkspaceUser, restrictTo(["org:admin", "org:member"]), checkSchema(updateTaskSchema), schemaValidation, updateTask)
-router.route('/update-task-status/:taskId').patch(ensureWorkspaceUser, restrictTo(["org:admin", "org:member"]), updateTask)
+router.route('/update-task-status/:taskId').patch(ensureWorkspaceUser, restrictTo(["org:admin", "org:member"]), updateTaskStatus)
 router.route('/update-project-member').put(checkSchema(updateProjectMemberSchema), schemaValidation, ensureWorkspaceUser, restrictTo(["org:admin",]), updateProjectMember)
 router.route('/delete-workspace/:workspaceId').delete(ensureWorkspaceUser, restrictTo(["org:admin",]), deleteWorkspace)
 router.route('/delete-project/:projectId').delete(ensureWorkspaceUser, restrictTo(["org:admin",]), deleteProject)
