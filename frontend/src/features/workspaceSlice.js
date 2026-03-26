@@ -209,7 +209,7 @@ export const workspace = createApi({
                 credentials:"include",
                 method: 'DELETE'
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         deleteWorkspaceMember: builder.mutation({
@@ -244,6 +244,6 @@ export const workspace = createApi({
 })
 
 
-export const { useGetWorkspaceDetailsQuery, useGetUserTasksQuery,useGetCommentQuery, useJoinWorkspaceMutation, useCreateWorkspaceMutation,useCreateProjectMutation,useCreateTaskMutation,useAddWorkspaceMemberMutation,useAddProjectMemberMutation,useAddCommentMutation,useUpdateWorkspaceMutation,useUpdateProjectMemberMutation,useUpdateProjectMutation,useUpdateTaskMutation,useDeleteWorkspaceMutation,useDeleteProjectMutation,useDeleteTaskMutation,useDeleteProjectMemberMutation,useDeleteWorkspaceMemberMutation,useDeleteCommentsMutation} = workspace;
+export const { useGetWorkspaceDetailsQuery, useGetUserTasksQuery,useGetCommentQuery, useJoinWorkspaceMutation, useCreateWorkspaceMutation,useCreateProjectMutation,useCreateTaskMutation,useAddWorkspaceMemberMutation,useAddProjectMemberMutation,useAddCommentMutation,useUpdateWorkspaceMutation,useUpdateProjectMemberMutation,useUpdateProjectMutation,useUpdateTaskMutation, useUpdateTaskStatusMutation,useDeleteWorkspaceMutation,useDeleteProjectMutation,useDeleteTaskMutation,useDeleteProjectMemberMutation,useDeleteWorkspaceMemberMutation,useDeleteCommentsMutation} = workspace;
 
 
