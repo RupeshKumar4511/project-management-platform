@@ -1,6 +1,6 @@
 import express from 'express';
-import {generateNewRefreshToken, login,logOut,resetPassword,sendEmailController,signUp, verifyUser, getUserData} from '../controllers/user.controller.js'
-import {loginSchema,resetPasswordSchema,signUpSchema, verifyUserSchema} from '../utils/user.validationSchema.js'
+import {generateNewRefreshToken, login,logOut,resetPassword,sendEmailController,signUp, verifyUser, getUserData} from '../controllers/auth.controller.js'
+import {loginSchema,resetPasswordSchema,signUpSchema, verifyUserSchema} from '../utils/auth.validationSchema.js'
 import { checkSchema } from 'express-validator';
 import { schemaValidation } from '../middleware/schema.validation.js';
 import verifyEmail from '../middleware/verifyEmail.js';
