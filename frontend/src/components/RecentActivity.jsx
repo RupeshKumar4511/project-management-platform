@@ -36,7 +36,6 @@ const RecentActivity = () => {
 
     const getTaskAssigneeName = (assigneeId) =>{
         const user = currentWorkspace?.details?.workspaceUsers?.filter(user=>user.id===assigneeId)[0];
-        console.log(user)
         return user.user.username;
     }
 

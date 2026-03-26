@@ -1,10 +1,10 @@
 import { format } from "date-fns";
 import toast from "react-hot-toast";
-import { useDispatch } from "react-redux";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import {  useDeleteTaskMutation, useUpdateTaskMutation } from "../features/workspaceSlice";
+import { useDeleteTaskMutation, useGetWorkspaceDetailsQuery, useUpdateTaskStatusMutation } from "../features/workspaceSlice";
 import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from "lucide-react";
+import { CgProfile } from "react-icons/cg";
 
 const typeIcons = {
     BUG: { icon: Bug, color: "text-red-600 dark:text-red-400" },
@@ -21,13 +21,13 @@ const priorityTexts = {
 };
 
 const ProjectTasks = ({ tasks }) => {
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [selectedTasks, setSelectedTasks] = useState([]);
 
-    const [updateTask,] = useUpdateTaskMutation();
+    // const [updateTask,] = useUpdateTaskMutation();
+    const [updateTaskStatus, { isLoading: updateTaskLoading, isSuccess: updateTaskIsSuccess, isError: updateTaskIsError, error: updateTaskError }] = useUpdateTaskStatusMutation()
 
-    const [deleteTask, ] = useDeleteTaskMutation();
+    const [deleteTask, { isLoading: deleteTaskLoading, isSuccess: deleteTaskIsSuccess, isError: deleteTaskIsError, error: deleteTaskError }] = useDeleteTaskMutation();
 
     const [filters, setFilters] = useState({
         status: "",
@@ -35,6 +35,8 @@ const ProjectTasks = ({ tasks }) => {
         priority: "",
         assignee: "",
     });
+
+    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
 
     const assigneeList = useMemo(
         () => Array.from(new Set(tasks.map((t) => t.assignee?.name).filter(Boolean))),
@@ -59,44 +61,52 @@ const ProjectTasks = ({ tasks }) => {
     };
 
     const handleStatusChange = async (taskId, newStatus) => {
-        try {
-            toast.loading("Updating status...");
-
-            //  Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            let updatedTask = structuredClone(tasks.find((t) => t.id === taskId));
-            updatedTask.status = newStatus;
-            dispatch(updateTask(updatedTask));
-
-            toast.dismissAll();
-            toast.success("Task status updated successfully");
-        } catch (error) {
-            toast.dismissAll();
-            console.log(error)
-            toast.error(error?.response?.data?.message || error.message);
-        }
+        const projectId = tasks?.filter(task => task.id === taskId)[0].projectId;
+        updateTaskStatus({ taskId, status: newStatus, projectId });
     };
+
+    if (updateTaskLoading) {
+        toast.loading("Updating status...");
+    }
+
+    if (updateTaskIsSuccess) {
+        toast.dismissAll();
+        toast.success("Task status updated successfully");
+    }
+
+    if (updateTaskIsError) {
+        toast.dismissAll();
+        console.log(updateTaskError)
+        toast.error(updateTaskError?.data?.message);
+    }
 
     const handleDelete = async () => {
-        try {
-            const confirm = window.confirm("Are you sure you want to delete the selected tasks?");
-            if (!confirm) return;
 
-            toast.loading("Deleting tasks...");
+        const confirm = window.confirm("Are you sure you want to delete the selected tasks?");
+        if (!confirm) return;
+        console.log(selectedTasks)
+        deleteTask([selectedTasks]);
 
-            //  Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            dispatch(deleteTask(selectedTasks));
-
-            toast.dismissAll();
-            toast.success("Tasks deleted successfully");
-        } catch (error) {
-            toast.dismissAll();
-            toast.error(error?.response?.data?.message || error.message);
-        }
     };
+
+    if (deleteTaskLoading) {
+        toast.loading("Deleting tasks...");
+    }
+
+    if (deleteTaskIsSuccess) {
+        toast.dismissAll();
+        toast.success("Tasks deleted successfully");
+    }
+
+    if (deleteTaskIsError) {
+        toast.dismissAll();
+        toast.error(deleteTaskError?.data?.message);
+    }
+
+    const getUserNameById = (assigneeId) => {
+        const user = currentWorkspace?.details?.workspaceUsers?.filter(users => users.id == assigneeId)[0];
+        return user.user.username;
+    }
 
     return (
         <div>
@@ -203,8 +213,8 @@ const ProjectTasks = ({ tasks }) => {
                                                 </td>
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-2">
-                                                        <img src={task?.assignee?.image} className="size-5 rounded-full" alt="avatar" />
-                                                        {task?.assignee?.name || "-"}
+                                                        <CgProfile className="size-5 rounded-full" alt="avatar" />
+                                                        {getUserNameById(task?.assigneeId) || "-"}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-2">
@@ -262,7 +272,7 @@ const ProjectTasks = ({ tasks }) => {
                                         </div>
 
                                         <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                                            <img src={task.assignee?.image} className="size-5 rounded-full" alt="avatar" />
+                                            <CgProfile className="size-5 rounded-full" alt="avatar" />
                                             {task.assignee?.name || "-"}
                                         </div>
 

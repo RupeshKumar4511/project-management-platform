@@ -25,7 +25,7 @@ export default function WorkspaceList() {
   if (isSuccess) {
     setTimeout(() => {
       navigate('/app/workspace');
-    }, 1000)
+    }, 1)
   }
   if (isError) {
     return (<ErrorPage />)

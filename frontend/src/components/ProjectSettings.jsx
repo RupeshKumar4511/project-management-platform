@@ -42,14 +42,12 @@ export default function ProjectSettings({ project }) {
                 startDate: new Date(project.startDate),
                 endDate: new Date(project.endDate),
             });
-            console.log(project)
         }
     }, [project, reset]);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            console.log("Form Data:", data);
             updateProject(data)
         } finally {
             setIsSubmitting(false);

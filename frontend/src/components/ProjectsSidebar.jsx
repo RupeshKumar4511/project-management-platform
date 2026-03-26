@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ChevronRightIcon, SettingsIcon, KanbanIcon, ChartColumnIcon, CalendarIcon, ArrowRightIcon } from 'lucide-react';
-import { useSelector } from 'react-redux';
+import { useGetWorkspaceDetailsQuery } from '../features/workspaceSlice';
 
 const ProjectSidebar = () => {
 
@@ -10,9 +10,8 @@ const ProjectSidebar = () => {
     const [expandedProjects, setExpandedProjects] = useState(new Set());
     const [searchParams] = useSearchParams();
 
-    const projects = useSelector(
-        (state) => state?.workspace?.currentWorkspace?.projects || []
-    );
+    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
+    const projects = currentWorkspace?.details?.projects || [];
 
     const getProjectSubItems = (projectId) => [
         { title: 'Tasks', icon: KanbanIcon, url: `/app/workspace/projectsDetail?id=${projectId}&tab=tasks` },
@@ -46,7 +45,7 @@ const ProjectSidebar = () => {
                         <button onClick={() => toggleProject(project.id)} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors duration-200 text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800 hover:text-gray-900 dark:hover:text-white" >
                             <ChevronRightIcon className={`size-3 text-gray-500 dark:text-zinc-400 transition-transform duration-200 ${expandedProjects.has(project.id) && 'rotate-90'}`} />
                             <div className="size-2 rounded-full bg-blue-500" />
-                            <span className="truncate max-w-40 text-sm">{project.name}</span>
+                            <span className="truncate max-w-40 text-sm">{project.title}</span>
                         </button>
 
                         {expandedProjects.has(project.id) && (

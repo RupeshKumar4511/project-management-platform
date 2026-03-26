@@ -2,10 +2,12 @@ import { SearchIcon, PanelLeft } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toggleTheme } from '../features/themeSlice'
 import { MoonIcon, SunIcon } from 'lucide-react'
-import { assets } from '../assets/assets'
+import { useState } from 'react';
+import UserMenu from './UserMenu';
 
 const Navbar = ({ setIsSidebarOpen }) => {
 
+    const [isOpen, setIsOpen] = useState(false);
     const dispatch = useDispatch();
     const { theme } = useSelector(state => state.theme);
 
@@ -43,7 +45,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
                     </button>
 
                     {/* User Button */}
-                    <img src={assets.profile_img_a} alt="User Avatar" className="size-7 rounded-full" />
+                    <UserMenu isOpen={isOpen} setIsOpen = {setIsOpen} />
                 </div>
             </div>
         </div>

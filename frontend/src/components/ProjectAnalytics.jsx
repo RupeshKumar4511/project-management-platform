@@ -31,7 +31,7 @@ const ProjectAnalytics = ({ project, tasks }) => {
             if (t.status === "DONE") stats.completed++;
             if (t.status === "IN_PROGRESS") stats.inProgress++;
             if (t.status === "TODO") stats.todo++;
-            if (new Date(t.due_date) < now && t.status !== "DONE") stats.overdue++;
+            if (new Date(t.dueDate) < now && t.status !== "DONE") stats.overdue++;
 
             if (statusMap[t.status] !== undefined) statusMap[t.status]++;
             if (typeMap[t.type] !== undefined) typeMap[t.type]++;
@@ -76,7 +76,7 @@ const ProjectAnalytics = ({ project, tasks }) => {
         },
         {
             label: "Team Size",
-            value: project?.members?.length || 0,
+            value: project?.projectMembers?.length || 0,
             color: "text-purple-600 dark:text-purple-400",
             icon: <Users className="size-5 text-purple-600 dark:text-purple-400" />,
             bg: "bg-purple-200 dark:bg-purple-500/10",
