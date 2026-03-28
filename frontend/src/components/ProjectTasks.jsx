@@ -38,9 +38,14 @@ const ProjectTasks = ({ tasks }) => {
 
     const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
 
+    const getUserIdByName = (name) => {
+        const user = currentWorkspace?.details?.workspaceUsers?.filter(user => user.user.username == name)[0];
+        return user.id;
+    }
+
     const assigneeList = useMemo(
-        () => Array.from(new Set(tasks.map((t) => t.assignee?.name).filter(Boolean))),
-        [tasks]
+        () => Array.from(new Set(currentWorkspace?.details?.workspaceUsers?.map((user) => user.user.username))),
+        [currentWorkspace?.details?.workspaceUsers]
     );
 
     const filteredTasks = useMemo(() => {
@@ -50,13 +55,14 @@ const ProjectTasks = ({ tasks }) => {
                 (!status || task.status === status) &&
                 (!type || task.type === type) &&
                 (!priority || task.priority === priority) &&
-                (!assignee || task.assignee?.name === assignee)
+                (!assignee || task.assigneeId === getUserIdByName(assignee))
             );
         });
     }, [filters, tasks]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
+        console.log(name,value)
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
