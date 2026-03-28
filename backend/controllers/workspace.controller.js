@@ -201,29 +201,23 @@ export const addMemberToProject = async (req, res) => {
     try {
 
         const [isValidProject] = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id
-            , projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.id, req.user.memberId), eq(projects.id, projectId)
+            , projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
             )));
 
         if (!isValidProject) {
             return res.status(400).send({ success: false, message: "This is not your project" })
         }
 
-        const [workspaceUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(eq(users.email, email))
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).innerJoin(users, eq( users.id,workspaceUsers.userId)).where(eq(users.email, email))
 
         if (!workspaceUser) {
             return res.status(400).send({ success: false, message: "No user found with this emailId" })
         }
 
-        const [project] = await db.select({ projectId: projects.id }).where(eq(projects.id, projectId));
-
-        if (!project) {
-            return res.status(400).send({ success: false, message: "Project not found" })
-        }
-
-        const projectMember = await db.select({ userId: projectMembers.userId }).from(projectMembers).where(eq(projectMembers.userId, workspaceUser.id))
+        const [projectMember] = await db.select({ userId: projectMembers.userId }).from(projectMembers).where(eq(projectMembers.userId, workspaceUser.id))
 
         if (projectMember) {
-            return res.status(400).send({ success: false, message: "Project member already exists" })
+            return res.status(409).send({ success: false, message: "Project member already exists" })
         }
 
         await db.insert(projectMembers).values({ userId: workspaceUser.id, projectId })
