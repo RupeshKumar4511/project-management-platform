@@ -652,7 +652,7 @@ export const updateProjectMemberSchema = {
     },
     projectId: {
         trim: true,
-        isEmpty: {
+        notEmpty: {
             errorMessage: "project Id is required"
         },
         isString: {
