@@ -28,7 +28,7 @@ router.route('/delete-project/:projectId').delete(ensureWorkspaceUser, restrictT
 router.route('/delete-task/:taskId').delete(ensureWorkspaceUser, restrictTo(["org:admin", "org:member"]), deleteTask)
 router.route('/delete-workspace-member').delete(ensureWorkspaceUser, restrictTo(["org:admin",]), deleteWorkspaceMember)
 router.route('/delete-project-member').delete(ensureWorkspaceUser, restrictTo(["org:admin", "org:member"]), deleteProjectMember)
-router.route('/delete-comments/:taskId').delete(ensureWorkspaceUser, restrictTo(["org:admin",]), deleteComments)
+router.route('/delete-comments/:taskId').delete(ensureWorkspaceUser, restrictTo(["org:admin","org:member",]), deleteComments)
 
 
 export default router;
