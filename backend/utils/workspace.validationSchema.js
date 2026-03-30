@@ -294,22 +294,6 @@ export const addCommentSchema = {
             errorMessage: "task id should be 36 characters long."
         }
     },
-    authorId: {
-        trim: true,
-        notEmpty: {
-            errorMessage: "author id is required"
-        },
-        isString: {
-            errorMessage: "author id must be string"
-        },
-        isLength: {
-            options: {
-                min: 36,
-                max: 36
-            },
-            errorMessage: "author id should be 36 characters long."
-        }
-    },
     content: {
         trim: true,
         notEmpty: {
