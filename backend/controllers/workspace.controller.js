@@ -117,18 +117,18 @@ export const createProject = async (req, res) => {
             const foundUsers = await tx.select({ id: workspaceUsers.id, email: users.email }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(inArray(users.email, teamMembers))
 
             if (foundUsers.length == 0) {
-                return res.status(400).send({success:false,message:"Members does not exists. First add members to team"})
+                return res.status(400).send({ success: false, message: "Members does not exists. First add members to team" })
             }
 
-            if(foundUsers.length > 0){
+            if (foundUsers.length > 0) {
                 const [projectLeadId] = foundUsers.map((user) => {
-                    if(user.email == projectLead){
+                    if (user.email == projectLead) {
                         return user.id
                     }
                 })
-                    const start_date = new Date(startDate)
-                    const end_date = new Date(endDate)
-                const [newProject] = await tx.insert(projects).values({ title, workspaceId: req.user.workspaceId, projectLink, description, status, priority, projectLead: projectLeadId, startDate:start_date, endDate:end_date }).returning({ insertedId: projects.id });
+                const start_date = new Date(startDate)
+                const end_date = new Date(endDate)
+                const [newProject] = await tx.insert(projects).values({ title, workspaceId: req.user.workspaceId, projectLink, description, status, priority, projectLead: projectLeadId, startDate: start_date, endDate: end_date }).returning({ insertedId: projects.id });
 
                 await tx.insert(projectMembers).values(foundUsers.map((user) => ({ userId: user.id, projectId: newProject.insertedId })))
             }
@@ -136,7 +136,7 @@ export const createProject = async (req, res) => {
         })
 
         return res.status(201).send({ success: true, message: "project created successfully." })
-        
+
     } catch (error) {
         console.log(error)
         return res.status(500).send({ success: false, message: "Internal Server Error" })
@@ -208,7 +208,7 @@ export const addMemberToProject = async (req, res) => {
             return res.status(400).send({ success: false, message: "This is not your project" })
         }
 
-        const [workspaceUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).innerJoin(users, eq( users.id,workspaceUsers.userId)).where(eq(users.email, email))
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).innerJoin(users, eq(users.id, workspaceUsers.userId)).where(eq(users.email, email))
 
         if (!workspaceUser) {
             return res.status(400).send({ success: false, message: "No user found with this emailId" })
@@ -238,7 +238,7 @@ export const createTask = async (req, res) => {
 
         const [isValidProject] = await db.select({ projectId: projects.id, workspaceName: workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(
             or(
-                and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), 
+                and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)),
                 and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId))
             )
         );
@@ -266,7 +266,7 @@ export const createTask = async (req, res) => {
         await sendTaskInvitation(body);
 
         await db.insert(tasks).values({
-            projectId, title, description, type, priority, assigneeId, status, dueDate:new Date(dueDate)
+            projectId, title, description, type, priority, assigneeId, status, dueDate: new Date(dueDate)
         })
 
         return res.status(200).send({ success: true, message: "Task created successfully" })
@@ -429,9 +429,9 @@ export const updateTaskStatus = async (req, res) => {
         return res.status(400).send({ success: false, message: "Required field not found." })
     }
     try {
-        const [isValidTask] = await db.select({ workspaceName: workspaces.name }).from(workspaces).innerJoin(projects, eq(projects.workspaceId,workspaces.id)).innerJoin(tasks, eq(tasks.projectId,projects.id)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
+        const [isValidTask] = await db.select({ workspaceName: workspaces.name }).from(workspaces).innerJoin(projects, eq(projects.workspaceId, workspaces.id)).innerJoin(tasks, eq(tasks.projectId, projects.id)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
         )));
-        
+
 
         if (!isValidTask) {
             return res.status(400).send({ success: false, message: "Access Denied" })
@@ -595,7 +595,7 @@ export const addComments = async (req, res) => {
             return res.status(400).send({ success: false, message: "TaskId does not exist" })
         }
 
-        await db.insert(comments).values({ taskId, content, userId: req.user.memberId })
+        await db.insert(comments).values({ taskId, content, authorId: req.user.memberId })
 
         return res.status(201).send({ success: true, message: "Comment added successfully" })
 
@@ -620,7 +620,7 @@ export const getComments = async (req, res) => {
             return res.status(400).send({ success: false, message: "Task does not exist" })
         }
         const taskComments = await db.query.comments.findMany({
-            where: eq(comments.taskId, currentTaskId),
+            where: eq(comments.taskId, taskId),
             with: {
                 workspaceAuthor: {
                     with: {
@@ -648,15 +648,25 @@ export const deleteComments = async (req, res) => {
     }
 
     try {
-        const [task] = await db.select({ taskId: tasks.id }).from(tasks).where(eq(tasks.id, taskId))
+        const [task] = await db.select({ taskId: tasks.id, projectId: tasks.projectId }).from(tasks).where(eq(tasks.id, taskId))
 
         if (!task) {
             return res.status(400).send({ success: false, message: "Invalid taskId" })
         }
 
-        await db.delete(comments).where(eq(comments.taskId, taskId))
+        const [data] = await db.select({ projectLead: projects.projectLead, ownerId: workspaces.ownerId }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(eq(projects.id, task.projectId))
 
-        return res.status(200).send({ success: false, message: `Comment related to taskId ${taskId} deleted Successfully.` })
+        if (data.projectLead == req.user.memberId || data.ownerId == req.user.id) {
+
+            await db.delete(comments).where(eq(comments.taskId, taskId))
+
+            return res.status(200).send({ success: false, message: `Comment related to taskId ${taskId} deleted Successfully.` })
+
+        } else {
+            return res.status(401).send({ success: false, message: "Access Denied" })
+        }
+
+
     } catch (error) {
         console.log(error);
         return res.status(500).send({ success: false, message: "Internal Server Error" })
