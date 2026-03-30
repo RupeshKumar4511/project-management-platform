@@ -118,7 +118,7 @@ export const workspace = createApi({
         }),
         getComment: builder.query({
             query: (taskId) => ({
-                url: `/get-comment/${taskId}`,
+                url: `/get-comments/${taskId}`,
                 method: 'GET',
                 credentials:"include",
             }),
