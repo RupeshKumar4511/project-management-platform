@@ -3,6 +3,7 @@ import { Mail, UserPlus } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { useAddProjectMemberMutation, useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 import LoadingSpinner from "./LoadingSpinner";
+import SuccessModal from "./SuccessModal";
 
 const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
 
@@ -10,18 +11,18 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const id = searchParams.get('id');
 
-    const { data: currentWorkspace, isLoading, error } = useGetWorkspaceDetailsQuery();
+    const { data: currentWorkspace, isLoading, isError } = useGetWorkspaceDetailsQuery();
 
     const project = currentWorkspace?.details.projects.find((p) => p.id === id);
-    const [addProjectMember] = useAddProjectMemberMutation();
+    const [addProjectMember, { isLoading: addingProjectMember, isSuccess: addProjectMemberIsSuccess, isError:addProjectMemberIsError, error: addProjectMemberError }] = useAddProjectMemberMutation();
 
     const members = project.projectMembers.map(member => {
-        if(member.userId != null){
+        if (member.userId != null) {
             return member.userId
         }
     });
-    const projectMembersEmails = currentWorkspace.details.workspaceUsers.map(user =>{
-        if(members.includes(user.id)){
+    const projectMembersEmails = currentWorkspace.details.workspaceUsers.map(user => {
+        if (members.includes(user.id)) {
             return user.user.email;
         }
     })
@@ -31,19 +32,28 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if(email){
-            addProjectMember({email,projectId:project.id})
+        if (email) {
+            addProjectMember({ email, projectId: project.id })
         }
-        
+
     };
+
+    const handleClick = (setOpen) => {
+        setIsDialogOpen(false);
+        setOpen(false);
+        window.location.reload();
+    }
 
     if (isLoading) {
         return (
             <LoadingSpinner />
         )
     }
-    if (error) {
+    if (isError) {
         return (<ErrorPage />)
+    }
+    if (addProjectMemberIsSuccess) {
+        return <SuccessModal handleClick={handleClick} message={"Project Member added sucessfully."} />
     }
 
     if (!isDialogOpen) return null;
@@ -83,14 +93,15 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
                             </select>
                         </div>
                     </div>
-
+                    {addingProjectMember && <LoadingSpinner />}
+                    {addProjectMemberIsError && <p className="text-red-500">{addProjectMemberError?.data?.message}</p>}
                     {/* Footer */}
                     <div className="flex justify-end gap-3 pt-2">
                         <button type="button" onClick={() => setIsDialogOpen(false)} className="px-5 py-2 text-sm rounded border border-zinc-300 dark:border-zinc-700 text-zinc-900 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-800 transition" >
                             Cancel
                         </button>
                         <button type="submit" disabled={isAdding || !currentWorkspace} className="px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white disabled:opacity-50 transition" >
-                            {isAdding ? "Adding..." : "Add Member"}
+                            {addingProjectMember ? "Adding..." : "Add Member"}
                         </button>
                     </div>
                 </form>

@@ -10,7 +10,7 @@ import ErrorPage from "./ErrorPage";
 
 export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
 
-    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
+    const { data: currentWorkspace, isLoading, isError } = useGetWorkspaceDetailsQuery();
     const project = currentWorkspace?.details?.projects.find((p) => p.id === projectId);
     const members = project.projectMembers.map(member => {
         if (member.userId != null) {
@@ -19,11 +19,11 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
     });
     const teamMembers = currentWorkspace.details.workspaceUsers.map(user => {
         if (members.includes(user.id)) {
-            return {email : user.user.email, userId : user.id};
+            return { email: user.user.email, userId: user.id };
         }
     })
 
-    const [createTask, { isLoading, isSuccess, isError }] = useCreateTaskMutation();
+    const [createTask, { isLoading: creatingTask, isSuccess: createTaskIsSuccess, isError: createTaskIsError,error:createTaskError }] = useCreateTaskMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate()
 
@@ -51,8 +51,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
         try {
 
-            createTask({...data,projectId:project.id})
-            setShowCreateTask(false);
+            createTask({ ...data, projectId: project.id })
 
         } catch (error) {
             console.error(error);
@@ -60,7 +59,9 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             setIsSubmitting(false);
         }
     };
-    const handleClick = () => {
+    const handleClick = (setOpen) => {
+        setShowCreateTask(false);
+        setOpen(false);
         reset({
             title: "",
             description: "",
@@ -70,9 +71,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             assigneeId: "",
             dueDate: ""
         });
-        setTimeout(() => {
-            navigate('/app/workspace/projects');
-        })
+        
     }
 
     if (isLoading) {
@@ -80,7 +79,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             <LoadingSpinner />
         )
     }
-    if (isSuccess) {
+    if (createTaskIsSuccess) {
         return (
             <SuccessModal handleClick={handleClick} message={"Your task is created successfully.."} />
         )
@@ -203,6 +202,8 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         )}
 
                     </div>
+                    {creatingTask && createTask}
+                    {createTaskIsError && <p className="text-red-500">{createTaskError?.data?.message}</p>}
 
                     {/* Footer */}
                     <div className="flex justify-end gap-2 pt-2">
@@ -220,7 +221,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                             disabled={isSubmitting}
                             className="rounded px-5 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white dark:text-zinc-200 transition"
                         >
-                            {isSubmitting ? "Creating..." : "Create Task"}
+                            {creatingTask ? "Creating..." : "Create Task"}
                         </button>
 
                     </div>

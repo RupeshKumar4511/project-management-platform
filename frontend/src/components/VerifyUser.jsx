@@ -58,10 +58,6 @@ export default function VerifyUser() {
   }, [time])
 
 
-  if (isLoading) {
-    return (<LoadingSpinner />)
-  }
-
 
 
   return (
@@ -95,7 +91,7 @@ export default function VerifyUser() {
         <span className="text-red-500 md:text-sm text-[12px] absolute top-20  right-0">{errors.otp?.message}</span>
       </div>
 
-
+      {isLoading && <LoadingSpinner/>}
       <button
         type="submit"
         className="shadow-md bg-blue-600 px-4 py-2 rounded-md text-white mt-4 hover:bg-blue-700 transition-colors

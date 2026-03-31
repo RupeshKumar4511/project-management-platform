@@ -24,10 +24,9 @@ const ProjectTasks = ({ tasks }) => {
     const navigate = useNavigate();
     const [selectedTasks, setSelectedTasks] = useState([]);
 
-    // const [updateTask,] = useUpdateTaskMutation();
-    const [updateTaskStatus, { isLoading: updateTaskLoading, isSuccess: updateTaskIsSuccess, isError: updateTaskIsError, error: updateTaskError }] = useUpdateTaskStatusMutation()
+    const [updateTaskStatus, { isLoading: updatingTask, isSuccess: updateTaskIsSuccess, isError: updateTaskIsError, error: updateTaskError,reset:updateTaskReset }] = useUpdateTaskStatusMutation()
 
-    const [deleteTask, { isLoading: deleteTaskLoading, isSuccess: deleteTaskIsSuccess, isError: deleteTaskIsError, error: deleteTaskError }] = useDeleteTaskMutation();
+    const [deleteTask, { isLoading: deletingTask, isSuccess: deleteTaskIsSuccess, isError: deleteTaskIsError, error: deleteTaskError , reset:deleteTaskReset}] = useDeleteTaskMutation();
 
     const [filters, setFilters] = useState({
         status: "",
@@ -71,19 +70,20 @@ const ProjectTasks = ({ tasks }) => {
         updateTaskStatus({ taskId, status: newStatus, projectId });
     };
 
-    if (updateTaskLoading) {
+    if (updatingTask) {
         toast.loading("Updating status...");
     }
 
     if (updateTaskIsSuccess) {
         toast.dismissAll();
         toast.success("Task status updated successfully");
+        updateTaskReset()
     }
 
     if (updateTaskIsError) {
         toast.dismissAll();
-        console.log(updateTaskError)
         toast.error(updateTaskError?.data?.message);
+        updateTaskReset()
     }
 
     const handleDelete = async () => {
@@ -95,18 +95,20 @@ const ProjectTasks = ({ tasks }) => {
 
     };
 
-    if (deleteTaskLoading) {
+    if (deletingTask) {
         toast.loading("Deleting tasks...");
     }
 
     if (deleteTaskIsSuccess) {
         toast.dismissAll();
         toast.success("Tasks deleted successfully");
+        deleteTaskReset()
     }
 
     if (deleteTaskIsError) {
         toast.dismissAll();
         toast.error(deleteTaskError?.data?.message);
+        deleteTaskReset()
     }
 
     const getUserNameById = (assigneeId) => {

@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom'
 import {  useCreateWorkspaceMutation } from "../features/workspaceSlice";
 import LoadingSpinner from "./LoadingSpinner";
 import SuccessModal from "./SuccessModal";
-import ErrorPage from "./ErrorPage";
 
 
 export default function CreateWorkspaceForm() {
@@ -12,7 +11,7 @@ export default function CreateWorkspaceForm() {
   const formRef = useRef(null);
   const navigate = useNavigate();
   const { register, handleSubmit, reset, formState: { errors } } = useForm()
-  const [createWorkspace, { isLoading, isSuccess, isError, error }] = useCreateWorkspaceMutation();
+  const [createWorkspace, { isLoading, isSuccess,  error }] = useCreateWorkspaceMutation();
 
 
   const onSubmit = (data) => {
@@ -24,25 +23,18 @@ export default function CreateWorkspaceForm() {
       workspaceName: '',
       description: '',
     });
+    
     setTimeout(()=>{
       navigate('/app');
     })
   }
 
-    if (isLoading) {
-        return (
-            <LoadingSpinner />
-        )
-    }
     if (isSuccess) {
         return (
             <SuccessModal handleClick={handleClick} message={"Your Workspace is created successfully.."} />
         )
     }
 
-     if (isError) {
-       return(<ErrorPage />)
-    }
 
 
   return (
@@ -50,6 +42,7 @@ export default function CreateWorkspaceForm() {
       <h2 className="text-2xl font-semibold text-gray-800">
         Create Your Workspace
       </h2>
+      {isLoading && <LoadingSpinner /> }
       <p className="text-gray-500 mt-2">
         Set up a new organizational space for your team and start managing
         projects instantly.

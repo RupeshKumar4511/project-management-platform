@@ -24,6 +24,19 @@ const ProjectOverview = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [projects, setProjects] = useState([]);
 
+    const calculateProgress = (project) => {
+        const totalTasks = project.tasks.length;
+        const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
+        return parseInt((completedTasks / totalTasks) * 100);
+    }
+
+
+    useEffect(() => {
+        projects.map((project)=>({
+            ...project, progress: calculateProgress(project)
+        }));
+    }, [projects])
+
     useEffect(() => {
         setProjects(currentWorkspace?.details?.projects || []);
     }, [currentWorkspace]);

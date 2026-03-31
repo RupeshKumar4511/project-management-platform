@@ -40,7 +40,7 @@ export default function CreateUser() {
 
     }, [time])
 
-        const onSubmit = (data) => {
+    const onSubmit = (data) => {
         dispatch(signUp({ otp: data.otp, ...state }))
     }
 
@@ -52,17 +52,12 @@ export default function CreateUser() {
         }, 0);
     }
 
-    if (isLoading) {
-        return <LoadingSpinner />
-    }
-
-    if (response.success === true) {
+    if (response.success) {
         return (<SuccessModal handleClick={handleClick} message={"Success! Please log in."} />
         )
-
     }
 
-    if (response.success === false) {
+    if (!response.success) {
         return (
             <h1 className='text-center'>{response.message}</h1>
         )
@@ -73,7 +68,7 @@ export default function CreateUser() {
             <ErrorPage />
         )
     }
-    
+
 
 
 
@@ -87,7 +82,7 @@ export default function CreateUser() {
         >
             <div className="mb-4 flex flex-col justify-between relative">
                 <label htmlFor="title" className="text-sm md:text-lg mb-1 md:mb-0 md:mr-2">
-                    Enter the OTP sent to your email :{state.email}
+                    Enter the OTP sent to your email : {state.email}
                 </label>
                 <input
                     type="text"
@@ -106,7 +101,7 @@ export default function CreateUser() {
                 <span className="text-red-500 md:text-sm text-[12px] absolute top-20  right-0">{errors.otp?.message}</span>
             </div>
 
-
+            {isLoading && <LoadingSpinner />}
             <button
                 type="submit"
                 className="shadow-md bg-blue-600 px-4 py-2 rounded-md text-white mt-4 hover:bg-blue-700 transition-colors"

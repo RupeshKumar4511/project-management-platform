@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const statusColors = {
@@ -8,7 +9,22 @@ const statusColors = {
     CANCELLED: "bg-red-200 dark:bg-red-500 text-red-900 dark:text-red-900",
 };
 
+
+
+
 const ProjectCard = ({ project }) => {
+
+    const calculateProgress = (project) => {
+        const totalTasks = project.tasks.length;
+        const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
+        return parseInt((completedTasks / totalTasks) * 100);
+    }
+
+    const [progress, setProgress] = useState(0);
+    useEffect(() => {
+        setProgress(calculateProgress(project));
+    }, [project])
+
     return (
         <Link to={`/app/workspace/projectsDetail?id=${project.id}&tab=tasks`} className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 rounded-lg p-5 transition-all duration-200 group">
             {/* Header */}
@@ -36,14 +52,14 @@ const ProjectCard = ({ project }) => {
             <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
                     <span className="text-gray-500 dark:text-zinc-500">Progress</span>
-                    <span className="text-gray-400 dark:text-zinc-400">{project.progress || 0}%</span>
+                    <span className="text-gray-400 dark:text-zinc-400">{progress}%</span>
                 </div>
                 <div className="w-full bg-gray-200 dark:bg-zinc-800 h-1.5 rounded">
-                    <div className="h-1.5 rounded bg-blue-500" style={{ width: `${project.progress || 0}%` }} />
+                    <div className="h-1.5 rounded bg-blue-500" style={{ width: `${progress}%` }} />
                 </div>
             </div>
 
-            </Link>
+        </Link>
     );
 };
 

@@ -9,8 +9,8 @@ import ErrorPage from "./ErrorPage";
 import { useGetWorkspaceDetailsQuery, useUpdateProjectMutation } from "../features/workspaceSlice";
 
 export default function ProjectSettings({ project }) {
-    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
-    const [updateProject, { isLoading, isSuccess, isError }] = useUpdateProjectMutation();
+    const { data: currentWorkspace, isLoading } = useGetWorkspaceDetailsQuery();
+    const [updateProject, { isLoading: updatingProject, isSuccess: updateProjectIsSuccess, isError: updateProjectIsError, error: updateProjectError }] = useUpdateProjectMutation();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,12 +35,20 @@ export default function ProjectSettings({ project }) {
 
     const progress = watch("progress");
 
+    const calculateProgress = (project) => {
+        const totalTasks = project.tasks.length;
+        const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
+        return parseInt((completedTasks / totalTasks) * 100);
+    }
+
     useEffect(() => {
         if (project) {
+
             reset({
                 ...project,
                 startDate: new Date(project.startDate),
                 endDate: new Date(project.endDate),
+                progress: calculateProgress(project)
             });
         }
     }, [project, reset]);
@@ -54,21 +62,10 @@ export default function ProjectSettings({ project }) {
         }
     };
 
-    const handleClick = () => {
-        return;
+    const handleClick = (setOpen) => {
+        setOpen(false);
+        window.location.reload()
     }
-
-
-    { isLoading && <LoadingSpinner /> }
-    {
-        isSuccess && (
-            <SuccessModal
-                handleClick={handleClick}
-                message="Your project is updated successfully.."
-            />
-        )
-    }
-    { isError && <ErrorPage /> }
 
 
     const inputClasses =
@@ -79,10 +76,13 @@ export default function ProjectSettings({ project }) {
 
     const labelClasses = "text-sm text-zinc-600 dark:text-zinc-400";
 
-    {!isDialogOpen && null};
+    { !isDialogOpen && null };
 
     return (
+
         <div className="grid lg:grid-cols-2 gap-8">
+            {isLoading && <LoadingSpinner />}
+
             {/* Project Details */}
             <div className={cardClasses}>
                 <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-300 mb-4">
@@ -205,11 +205,25 @@ export default function ProjectSettings({ project }) {
                                     step="5"
                                     {...field}
                                     className="w-full accent-blue-500 dark:accent-blue-400"
+                                    disabled
                                 />
                             )}
                         />
                     </div>
 
+
+                    {updatingProject && <LoadingSpinner />}
+                    {updateProjectIsError && <p className="text-red-500">{updateProjectError?.data?.message}</p>}
+
+
+                    {
+                        updateProjectIsSuccess && (
+                            <SuccessModal
+                                handleClick={handleClick}
+                                message="Your project is updated successfully.."
+                            />
+                        )
+                    }
                     {/* Save Button */}
                     <button
                         type="submit"
@@ -217,7 +231,7 @@ export default function ProjectSettings({ project }) {
                         className="ml-auto flex items-center text-sm justify-center gap-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white px-4 py-2 rounded"
                     >
                         <Save className="size-4" />
-                        {isSubmitting ? "Saving..." : "Save Changes"}
+                        {updatingProject ? "Saving..." : "Save Changes"}
                     </button>
                 </form>
             </div>

@@ -8,9 +8,9 @@ import SuccessModal from "./SuccessModal";
 import ErrorPage from "./ErrorPage";
 
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
-    const { data: currentWorkspace, error: getError} = useGetWorkspaceDetailsQuery();
+    const { data: currentWorkspace,isLoading, isError} = useGetWorkspaceDetailsQuery();
     const navigate = useNavigate()
-    const [createProject, { isLoading, isSuccess, isError }] = useCreateProjectMutation();
+    const [createProject, { isLoading:creatingProject, isSuccess, isError:createProjectIsError, error:createProjectError }] = useCreateProjectMutation();
     const {
         register,
         handleSubmit,
@@ -75,7 +75,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
             <SuccessModal handleClick={handleClick} message={"Your project is created successfully.."} />
         )
     }
-    if (isError|| getError ) {
+    if (isError) {
         return (<ErrorPage  />)
     }
     
@@ -258,6 +258,8 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
                     </div>
 
+                {creatingProject && <LoadingSpinner/>}
+                {createProjectIsError && <p className="text-red-500">{createProjectError?.data?.message}</p>}
                     {/* Footer */}
                     <div className="flex justify-end gap-3 pt-2 text-sm">
 
@@ -273,7 +275,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             disabled={isSubmitting || !currentWorkspace}
                             className="px-4 py-2 rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white"
                         >
-                            {isSubmitting ? "Creating..." : "Create Project"}
+                            {creatingProject ? "Creating..." : "Create Project"}
                         </button>
 
                     </div>

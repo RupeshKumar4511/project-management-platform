@@ -10,25 +10,16 @@ export default function WorkspaceList() {
   const formRef = useRef(null);
   const { register, handleSubmit, formState: { errors } } = useForm();
   const navigate = useNavigate()
-  const [joinWorkspace, { isLoading, isSuccess, isError,error }] = useJoinWorkspaceMutation();
+  const [joinWorkspace, { isLoading, isSuccess, error }] = useJoinWorkspaceMutation();
 
   const onSubmit = (data) => {
     joinWorkspace(data);
   };
 
-
-  if (isLoading) {
-    return (
-      <LoadingSpinner />
-    )
-  }
   if (isSuccess) {
     setTimeout(() => {
       navigate('/app/workspace');
     }, 1)
-  }
-  if (isError) {
-    return (<ErrorPage />)
   }
 
   return (
@@ -38,7 +29,7 @@ export default function WorkspaceList() {
         <h3 className="text-xl font-semibold text-gray-800 mb-6">
           Join Your Organization Workspace
         </h3>
-
+        {isLoading && <LoadingSpinner />}
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} ref={formRef}>
 
            <p className={`text-red-500 ${error?.data ? '' : 'hidden'}`}>{error?.data ? error?.data?.message : ''}</p>

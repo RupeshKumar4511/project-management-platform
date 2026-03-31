@@ -16,7 +16,7 @@ const Reset = () => {
     dispatch(sendMail2(data))
   }
 
-    if (sendEmail2Response.success === true) {
+    if (sendEmail2Response.success) {
       setTimeout(()=>{
         navigate("/verify-user", {
         state: getValues()
@@ -24,10 +24,6 @@ const Reset = () => {
       },1000)
     }
 
-
-  if(isLoading){
-    return(<LoadingSpinner/>)
-  }
 
   return (
 
@@ -63,6 +59,7 @@ const Reset = () => {
 
         </div>
 
+      {isLoading && <LoadingSpinner/>}
       </div>
       <div className="flex justify-end gap-4">
         <button className="rounded-md bg-gray-300 px-6 py-2 font-semibold hover:bg-gray-400/80 active:bg-gray-400/60

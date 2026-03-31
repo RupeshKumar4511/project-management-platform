@@ -8,8 +8,8 @@ import { useNavigate } from "react-router-dom";
 
 const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
-    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
-    const [addWorkspaceMember, { isLoading, isSuccess, isError,error }] = useAddWorkspaceMemberMutation();
+    const { data: currentWorkspace, isLoading,isError } = useGetWorkspaceDetailsQuery();
+    const [addWorkspaceMember, { isLoading:addingWorkspaceMember, isSuccess:addWorkspaceMemberIsSuccess, isError:addWorkspaceMemberIsError,error:addWorkspaceMemberError }] = useAddWorkspaceMemberMutation();
 
     const navigate = useNavigate()
 
@@ -51,7 +51,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
             <LoadingSpinner />
         )
     }
-    if (isSuccess) {
+    if (addWorkspaceMemberIsSuccess) {
         return (
             <SuccessModal handleClick={handleClick} message={"Your task is created successfully.."} />
         )
@@ -118,6 +118,9 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                         </select>
                     </div>
 
+                    {addingWorkspaceMember && <LoadingSpinner/>}
+                {addWorkspaceMemberIsError && <p className="text-red-500">{addWorkspaceMemberError?.data?.message}</p>}
+
                     {/* Footer */}
                     <div className="flex justify-end gap-3 pt-2">
 
@@ -134,7 +137,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             disabled={isSubmitting || !currentWorkspace}
                             className="px-5 py-2 rounded text-sm bg-gradient-to-br from-blue-500 to-blue-600 text-white disabled:opacity-50 hover:opacity-90 transition"
                         >
-                            {isSubmitting ? "Sending..." : "Send Invitation"}
+                            {addingWorkspaceMember ? "Sending..." : "Send Invitation"}
                         </button>
 
                     </div>

@@ -12,14 +12,14 @@ const ResetPassword = () => {
   const { state } = useLocation();
   const dispatch = useDispatch();
   const formRef = useRef(null);
-  const { resetPasswordResponse,isLoading, error } = useSelector(store => store.auth);
+  const { resetPasswordResponse, isLoading, error } = useSelector(store => store.auth);
 
   const { handleSubmit, register, formState: { errors } } = useForm();
   const onSubmit = (data) => {
     dispatch(resetPassword({ ...state, ...data }))
     dispatch(authActions.updateVerifyUserResponse());
   }
-  
+
 
 
   useEffect(() => {
@@ -27,18 +27,16 @@ const ResetPassword = () => {
       dispatch(authActions.updateSendMail2Response());
       dispatch(authActions.updateResetPasswordResponse())
 
-      setTimeout(()=>{
+      setTimeout(() => {
         alert("Password reset successfully");
         navigate("/");
-        
-      },1000)
+
+      }, 1000)
     }
 
-  }, [resetPasswordResponse,navigate])
+  }, [resetPasswordResponse, navigate])
 
-  if(isLoading){
-    return(<LoadingSpinner/>)
-  }
+
 
 
   if (resetPasswordResponse.success === false) {
@@ -57,8 +55,8 @@ const ResetPassword = () => {
     <form className="vh-100 w-80 mx-auto border my-5 px-5 py-5 border-black/40 rounded-md shadow-md" ref={formRef} method="POST" onSubmit={handleSubmit(onSubmit)}>
       <p className="text-xl font-bold text-blue-800">Reset Password</p>
       <div className="my-4 border-y border-gray-300 px-6 py-6 flex flex-col gap-5 bg-white ">
-        <p className={`text-red-500 ${resetPasswordResponse.success?'hidden':''}`}>{!resetPasswordResponse.success?resetPasswordResponse.message:''}</p>
-          <p className={`text-red-500 ${error.resetPasswordError?'':'hidden'}`}>{error.resetPasswordError?error.resetPasswordError:''}</p>
+        <p className={`text-red-500 ${resetPasswordResponse.success ? 'hidden' : ''}`}>{!resetPasswordResponse.success ? resetPasswordResponse.message : ''}</p>
+        <p className={`text-red-500 ${error.resetPasswordError ? '' : 'hidden'}`}>{error.resetPasswordError ? error.resetPasswordError : ''}</p>
 
         <div className="flex flex-col gap-2 relative mb-3">
           <label htmlFor="password" className="text-sm font-medium text-gray-700 ">
@@ -81,6 +79,8 @@ const ResetPassword = () => {
 
         </div>
       </div>
+      {isLoading && <LoadingSpinner />}
+
       <div className="flex justify-end gap-4">
         <button className="rounded-md bg-gray-300 px-6 py-2 font-semibold hover:bg-gray-400/80 active:bg-gray-400/60
         cursor-pointer" onClick={() => { navigate('/') }}>
