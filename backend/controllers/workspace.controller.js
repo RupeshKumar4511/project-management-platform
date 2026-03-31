@@ -87,10 +87,10 @@ export const joinWorkspace = async (req, res) => {
     const { workspaceName } = req.body;
     try {
 
-        const [workspace] = await db.select({ name: workspaces.name, }).from(workspaces).where(eq(workspaces.name, workspaceName))
+        const [workspace] = await db.select({ name: workspaces.name, }).from(workspaces).where(eq(sql`lower(${workspaces.name})`, workspaceName.toLowerCase()))
 
         if (!workspace) {
-            return res.status(400).send({ success: false, message: `WorkspaceName or WorkspacePassword is Incorrect` })
+            return res.status(400).send({ success: false, message: `WorkspaceName is Incorrect` })
         }
 
         const workspaceDetails = await getWorkspaceDetails(req.user.workspaceId)
