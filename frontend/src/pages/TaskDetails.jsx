@@ -10,8 +10,8 @@ import { useSelector } from "react-redux";
 const TaskDetails = () => {
 
     const { data: currentWorkspace, isSuccess } = useGetWorkspaceDetailsQuery();
-    const [addComment, { isLoading: addCommentLoading, isSuccess: addCommentIsSuccess, isError: addCommentIsError, error: addCommentError }] = useAddCommentMutation()
-    const [deleteComments, { isLoading: deleteCommentsLoading, isSuccess: deleteCommentsIsSuccess, isError: deleteCommentsIsError, error: deleteCommentsError }] = useDeleteCommentsMutation()
+    const [addComment, { isLoading: addingComment, isSuccess: addCommentIsSuccess, isError: addCommentIsError, error: addCommentError, reset:addCommentReset }] = useAddCommentMutation()
+    const [deleteComments, { isLoading: deletingComments, isSuccess: deleteCommentsIsSuccess, isError: deleteCommentsIsError, error: deleteCommentsError,reset:deleteCommentsReset }] = useDeleteCommentsMutation()
 
     const { authResponse: user } = useSelector((store) => store.auth);
 
@@ -27,6 +27,12 @@ const TaskDetails = () => {
     const [loading, setLoading] = useState(true);
 
 
+    const calculateProgress = (project) => {
+        const totalTasks = project.tasks.length;
+        const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
+        return parseInt((completedTasks / totalTasks) * 100);
+    }
+
 
     const fetchTaskDetails = async () => {
         setLoading(true);
@@ -39,28 +45,30 @@ const TaskDetails = () => {
             if (!tsk) return;
 
             setTask(tsk);
-            setProject(proj);
+            setProject({ ...proj, progress: calculateProgress(proj) });
         }
 
         setLoading(false);
     };
-    const { data: fetchedComments,isSuccess:fetchCommentSuccess ,refetch} = useGetCommentQuery(task?.id);
+    const { data: fetchedComments, isSuccess: fetchCommentSuccess, refetch } = useGetCommentQuery(task?.id);
 
     const fetchComments = async () => {
-        if(fetchCommentSuccess){
+        if (fetchCommentSuccess) {
             setComments(fetchedComments?.comments);
         }
     };
 
-    const refresh = async()=>{
+    const refresh = async () => {
         refetch();
-        setTimeout(()=>{
+        
+        setTimeout(() => {
             fetchComments();
-        },1000)
+        
+        }, 1000)
     }
 
     const handleDeleteComments = () => {
-        if(task){
+        if (task) {
             deleteComments(task?.id);
         }
     };
@@ -83,24 +91,43 @@ const TaskDetails = () => {
         if (taskId && task) {
             fetchComments();
         }
-    }, [taskId, task,fetchCommentSuccess]);
+    }, [taskId, task, fetchCommentSuccess]);
 
-    if (addCommentLoading) {
+    if (addingComment) {
         toast.loading("Adding comment...");
     }
 
     if (addCommentIsSuccess) {
         toast.dismissAll();
         toast.success("Comment added.");
+        addCommentReset()
+
     }
 
     if (addCommentIsError) {
         toast.dismissAll();
-        console.log(addCommentError)
         toast.error(addCommentError?.data?.message);
+        addCommentReset()
     }
 
-    if (loading ) return <div className="text-gray-500 dark:text-zinc-400 px-4 py-6">Loading task details...</div>;
+    if (deletingComments) {
+        toast.loading("Adding comment...");
+    }
+
+    if (deleteCommentsIsSuccess) {
+        toast.dismissAll();
+        toast.success("Comment added.");
+        deleteCommentsReset()
+
+    }
+
+    if (deleteCommentsIsError) {
+        toast.dismissAll();
+        toast.error(deleteCommentsError?.data?.message);
+        deleteCommentsReset()
+    }
+
+    if (loading) return <div className="text-gray-500 dark:text-zinc-400 px-4 py-6">Loading task details...</div>;
     if (!task) return <div className="text-red-500 px-4 py-6">Task not found.</div>;
 
     return (
