@@ -1,6 +1,6 @@
 import { uuid, varchar,timestamp, pgTable,text, pgEnum,integer,uniqueIndex,index } from "drizzle-orm/pg-core";
 import { users } from "./user.model.js";
-import { sql,relations } from "drizzle-orm";
+import { sql, relations } from "drizzle-orm";
 
 export const workspaceRoleEnum = pgEnum("workspace_user_role",["org:admin","org:member"])
 export const taskStatusEnum = pgEnum('task_status',['TODO','IN_PROGRESS','DONE'])
@@ -18,7 +18,8 @@ export const workspaces = pgTable("workspaces",{
     updatedAt:timestamp('updated_at', { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
 },(table)=>[
-    uniqueIndex('workspace_name_idx').on(sql`lower(${table.name})`,table.ownerId),
+    uniqueIndex('workspace_idx').on(table.id,table.ownerId),
+    index('workspace_name_idx').on(sql`lower(${table.name})`),
     index("workspace_owner_id_idx").on(table.ownerId)
 ])
 
@@ -49,7 +50,8 @@ export const projects = pgTable('projects',{
     createdAt:timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt:timestamp('updated_at', { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 },(table)=>[
-    uniqueIndex('project_workspace_title_idx').on(table.workspaceId,sql`lower(${table.title})`),
+    uniqueIndex('project_workspace_idx').on(table.workspaceId,table.id),
+    index('project_title_idx').on(sql`lower(${table.title})`),
     index('project_lead_id_idx').on(table.projectLead),
 ])
 
@@ -76,7 +78,7 @@ export const tasks = pgTable('tasks',{
     updatedAt:timestamp('updated_at', { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
     
 },(table)=>[
-    uniqueIndex('tasks_index').on(table.projectId,sql`lower(${table.title})`),
+    uniqueIndex('tasks_project_idx').on(table.projectId,table.id),
     index('tasks_assignee_id_idx').on(table.assigneeId)
 ])
 
