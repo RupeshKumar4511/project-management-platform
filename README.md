@@ -1,4 +1,4 @@
-# Project Management Workspace Hub
+# Projectly - Project Management Platform
 A Full Stack Application.
 
 # TechStack : 
