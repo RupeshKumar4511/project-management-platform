@@ -331,7 +331,7 @@ export const updateProject = async (req, res) => {
             return res.status(400).send({ success: false, message: "Task Id not found" })
         }
 
-        await db.update(projects).set({ title, projectLink, description, status, priority, startDate, endDate });
+        await db.update(projects).set({title, projectLink, description, status, priority, startDate, endDate });
 
         return res.status(200).send({ success: true, message: "Project Updated Successfully." })
 
