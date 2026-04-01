@@ -46,7 +46,8 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
         );
     };
 
-    const handleClick = () => {
+    const handleClick = (setOpen) => {
+        setOpen(false)
         reset({
             title: "",
             projectLink: "",

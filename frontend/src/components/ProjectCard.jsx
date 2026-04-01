@@ -16,8 +16,11 @@ const ProjectCard = ({ project }) => {
 
     const calculateProgress = (project) => {
         const totalTasks = project.tasks.length;
+        if(totalTasks==0){
+            return 0;
+        }
         const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
-        return parseInt((completedTasks / totalTasks) * 100);
+        return parseInt((completedTasks / totalTasks) * 100) ;
     }
 
     const [progress, setProgress] = useState(0);

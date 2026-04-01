@@ -18,7 +18,7 @@ export default function TasksSummary() {
         }
     }, [currentWorkspace]);
 
-    const myTasks = tasks.filter(i => i.assigneeId === currentUser.id);
+    const myTasks = tasks.filter(i => i.assigneeId === currentUser?.id);
     const overdueTasks = tasks.filter(t => t.dueDate && new Date(t.dueDate) < new Date() && t.status !== 'DONE');
     const inProgressIssues = tasks.filter(i => i.status === 'IN_PROGRESS');
 
@@ -71,7 +71,7 @@ export default function TasksSummary() {
                         ) : (
                             <div className="space-y-3">
                                 {card.items.map((issue) => (
-                                    <div key={issue.id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+                                    <div key={issue?.id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
                                         <h4 className="text-sm font-medium text-gray-800 dark:text-white truncate">
                                             {issue.title}
                                         </h4>
