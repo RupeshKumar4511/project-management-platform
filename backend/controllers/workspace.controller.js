@@ -160,8 +160,9 @@ export const addTeamMemberToWorkspace = async (req, res) => {
     const password = generator.generate({
         length: 8,
         numbers: true,
-        symbols: true,
+        symbols: '@$!%*?&',
         uppercase: true,
+        lowercase:true,
         strict: true
     });
 
