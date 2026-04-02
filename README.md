@@ -1,19 +1,19 @@
-# Projectly - Project Management Platform
-A Full Stack Application.
+# Projectly - A Project Management Platform
+A full stack web app that helps teams plan, organize, and track projects efficiently.
+<br>
+• Enables task assignment, progress monitoring, collaboration, and deadline management
+<br>
+• Improves productivity, transparency, and timely project completion
+<br>
+• Implemented custom auth system using JWT Access & Refresh Token and sendgrid for email verification
 
 # TechStack : 
-React 
+Frontend : React, Redux Toolkit, Tailwind CSS and RTK Query
 <br>
-Redux Toolkit
+Backend : Node.js, Express.js
 <br>
-Tailwind CSS
-<br>
-Node.js + Express.js
-<br>
-PostgreSQL
-<br>
-Redis
+Databases : PostgreSQL and Redis
 
 
 # Frontend Reference : 
-github.com/GreatStackDev/project-management
+https://github.com/GreatStackDev/project-management
