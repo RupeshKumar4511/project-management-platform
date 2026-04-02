@@ -83,7 +83,7 @@ export const workspace = createApi({
                 credentials:"include",
                 body: data
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         createTask: builder.mutation({
@@ -93,7 +93,7 @@ export const workspace = createApi({
                 credentials:"include",
                 body: data
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         addWorkspaceMember: builder.mutation({
@@ -103,7 +103,7 @@ export const workspace = createApi({
                 credentials:"include",
                 body: data
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         addProjectMember: builder.mutation({
@@ -113,7 +113,7 @@ export const workspace = createApi({
                 credentials:"include",
                 body: data
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         getComment: builder.query({
@@ -122,7 +122,7 @@ export const workspace = createApi({
                 method: 'GET',
                 credentials:"include",
             }),
-            invalidatesTags: ['comments']
+            providesTags: ['comments']
 
         }),
         addComment: builder.mutation({
@@ -191,7 +191,7 @@ export const workspace = createApi({
                 credentials:"include",
                 method: 'DELETE'
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         deleteProject: builder.mutation({
@@ -200,7 +200,7 @@ export const workspace = createApi({
                 credentials:"include",
                 method: 'DELETE'
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         deleteTask: builder.mutation({
@@ -218,7 +218,7 @@ export const workspace = createApi({
                 credentials:"include",
                 method: 'DELETE'
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         deleteProjectMember: builder.mutation({
@@ -227,7 +227,7 @@ export const workspace = createApi({
                 credentials:"include",
                 method: 'DELETE'
             }),
-            invalidatesTags: ['workpace-details']
+            invalidatesTags: ['workspace-details']
 
         }),
         deleteComments: builder.mutation({
