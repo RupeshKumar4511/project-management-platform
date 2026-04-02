@@ -52,12 +52,12 @@ export default function CreateUser() {
         }, 0);
     }
 
-    if (response.success) {
+    if (response.success === true) {
         return (<SuccessModal handleClick={handleClick} message={"Success! Please log in."} />
         )
     }
 
-    if (!response.success) {
+    if (response.success === false) {
         return (
             <h1 className='text-center'>{response.message}</h1>
         )

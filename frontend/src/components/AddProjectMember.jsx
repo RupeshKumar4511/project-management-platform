@@ -41,7 +41,6 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen }) => {
     const handleClick = (setOpen) => {
         setIsDialogOpen(false);
         setOpen(false);
-        window.location.reload();
     }
 
     if (isLoading) {

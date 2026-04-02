@@ -67,7 +67,6 @@ export default function ProjectSettings({ project }) {
 
     const handleClick = (setOpen) => {
         setOpen(false);
-        window.location.reload()
     }
 
 

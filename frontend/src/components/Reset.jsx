@@ -16,7 +16,7 @@ const Reset = () => {
     dispatch(sendMail2(data))
   }
 
-    if (sendEmail2Response.success) {
+    if (sendEmail2Response.success === true) {
       setTimeout(()=>{
         navigate("/verify-user", {
         state: getValues()

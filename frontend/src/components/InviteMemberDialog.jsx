@@ -28,13 +28,13 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
     const onSubmit = async (data) => {
         try {
             addWorkspaceMember(data)
-            setIsDialogOpen(false);
 
         } catch (error) {
             console.error(error);
         }
     };
     const handleClick = () => {
+        setIsDialogOpen(false);
         reset({
            email: "",
             role: "org:member",
@@ -53,7 +53,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
     }
     if (addWorkspaceMemberIsSuccess) {
         return (
-            <SuccessModal handleClick={handleClick} message={"Your task is created successfully.."} />
+            <SuccessModal handleClick={handleClick} message={"workspace member added successfully.."} />
         )
     }
     if (isError) {

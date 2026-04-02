@@ -2,7 +2,7 @@ import { useRef, useEffect } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { useDispatch, useSelector } from 'react-redux';
 import { signOut } from '../features/authSlice';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function UserMenu({ isOpen, setIsOpen }) {
 
@@ -56,7 +56,7 @@ export default function UserMenu({ isOpen, setIsOpen }) {
                 <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md border border-gray-200 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 z-50">
                     <div className="p-3 border-b border-gray-100 dark:border-zinc-800">
                         <p className="text-xs text-gray-500 dark:text-zinc-400">Signed in as</p>
-                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{getUserName(authResponse?.username || "User")}</p>
+                        <Link to="/app/profile" className="text-sm font-medium text-gray-900 dark:text-white truncate">{getUserName(authResponse?.username || "User")}</Link>
                     </div>
 
                     <div className="py-1">
