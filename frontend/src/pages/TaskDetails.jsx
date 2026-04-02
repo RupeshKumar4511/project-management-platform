@@ -53,10 +53,18 @@ const TaskDetails = () => {
 
         setLoading(false);
     };
-    const { data: fetchedComments, isSuccess: fetchCommentSuccess, refetch } = useGetCommentQuery(task?.id);
+    const { data: fetchedComments, isSuccess: fetchCommentIsSuccess, refetch } = useGetCommentQuery(task?.id);
+
+    useEffect(()=>{
+         refetch();
+        
+        setTimeout(async() => {
+           await fetchComments();
+        }, 1)
+    },[task,fetchedComments])
 
     const fetchComments = async () => {
-        if (fetchCommentSuccess) {
+        if (fetchCommentIsSuccess) {
             setComments(fetchedComments?.comments);
         }
     };
@@ -66,13 +74,13 @@ const TaskDetails = () => {
         
         setTimeout(() => {
             fetchComments();
-        
-        }, 1000)
+        }, 1)
     }
 
-    const handleDeleteComments = () => {
+    const handleDeleteComments = async() => {
         if (task) {
             deleteComments(task?.id);
+            await refresh();
         }
     };
 
@@ -81,7 +89,7 @@ const TaskDetails = () => {
         if (!newComment.trim()) return;
         addComment({ taskId: task.id, content: newComment });
         setNewComment("");
-
+        await refresh();
     };
     const getUserNameById = (assigneeId) => {
         const user = currentWorkspace?.details?.workspaceUsers?.filter(users => users.id == assigneeId)[0];
@@ -94,7 +102,7 @@ const TaskDetails = () => {
         if (taskId && task) {
             fetchComments();
         }
-    }, [taskId, task, fetchCommentSuccess]);
+    }, [taskId, task, fetchCommentIsSuccess]);
 
     if (addingComment) {
         toast.loading("Adding comment...");
@@ -114,12 +122,12 @@ const TaskDetails = () => {
     }
 
     if (deletingComments) {
-        toast.loading("Adding comment...");
+        toast.loading("Deleting comment...");
     }
 
     if (deleteCommentsIsSuccess) {
         toast.dismissAll();
-        toast.success("Comment added.");
+        toast.success("Comment deleted.");
         deleteCommentsReset()
 
     }
