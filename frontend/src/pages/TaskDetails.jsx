@@ -106,6 +106,9 @@ const TaskDetails = () => {
 
     if (addingComment) {
         toast.loading("Adding comment...");
+        setTimeout(()=>{
+            toast.dismissAll()
+        },120)
     }
 
     if (addCommentIsSuccess) {
@@ -123,6 +126,9 @@ const TaskDetails = () => {
 
     if (deletingComments) {
         toast.loading("Deleting comment...");
+        setTimeout(()=>{
+            toast.dismissAll()
+        },120)
     }
 
     if (deleteCommentsIsSuccess) {
