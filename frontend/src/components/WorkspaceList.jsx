@@ -29,7 +29,7 @@ export default function WorkspaceList() {
         <h3 className="text-xl font-semibold text-gray-800 mb-6">
           Join Your Organization Workspace
         </h3>
-        {isLoading && <LoadingSpinner />}
+        
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} ref={formRef}>
 
            <p className={`text-red-500 ${error?.data ? '' : 'hidden'}`}>{error?.data ? error?.data?.message : ''}</p>
@@ -52,6 +52,8 @@ export default function WorkspaceList() {
             <span className="text-red-500 md:text-sm text-[12px] ">{errors.workspaceName?.message}</span>
           </div>
 
+          {isLoading && <LoadingSpinner />}
+          
           <button
             type="submit"
             className="w-full rounded-xl bg-indigo-600 py-3 text-white font-medium hover:bg-indigo-700 transition"
