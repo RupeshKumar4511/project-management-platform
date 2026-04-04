@@ -330,7 +330,7 @@ export const updateWorkspaceSchema = {
             errorMessage: "workspace id should be 36 characters long."
         }
     },
-    workspaceName: {
+    name: {
         trim: true,
         notEmpty: {
             errorMessage: "Workspace name is required"
