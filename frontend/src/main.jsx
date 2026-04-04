@@ -22,6 +22,7 @@ import WorkspaceList from './components/WorkspaceList.jsx'
 import CreateWorkspaceForm from './components/CreateWorkspaceForm.jsx'
 import Profile from './components/Profile.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
+import Settings from './components/Settings.jsx'
 
 const router = createBrowserRouter([
 
@@ -52,6 +53,7 @@ const router = createBrowserRouter([
       { index: true, element: <ProtectedRoute> <Dashboard /></ProtectedRoute> },
       { path: '/app/workspace/team', element: <ProtectedRoute> <Team /></ProtectedRoute> },
       { path: '/app/workspace/projects', element: <ProtectedRoute> <Projects /></ProtectedRoute> },
+      { path: '/app/workspace/settings', element: <ProtectedRoute> <Settings /></ProtectedRoute> },
       { path: '/app/workspace/projectsDetail', element: <ProtectedRoute> <ProjectDetails /></ProtectedRoute> },
       { path: '/app/workspace/taskDetails', element: <ProtectedRoute> <TaskDetails /></ProtectedRoute> },
     ]
