@@ -49,7 +49,7 @@ export const createWorkspace = async (req, res) => {
 
 const getWorkspaceDetails = async (workspaceId) => {
     const cachedResult = await client.get(`workspace:${workspaceId}`);
-    if(cachedResult){
+    if (cachedResult) {
         return JSON.parse(cachedResult);
     }
 
@@ -75,8 +75,8 @@ const getWorkspaceDetails = async (workspaceId) => {
         }
     });
 
-    await client.set(`workspace:${workspaceId}`,JSON.stringify(result));
-    await client.expire(`workspace:${workspaceId}`,60*15);
+    await client.set(`workspace:${workspaceId}`, JSON.stringify(result));
+    await client.expire(`workspace:${workspaceId}`, 60 * 15);
 
     return result;
 }
@@ -145,7 +145,7 @@ export const createProject = async (req, res) => {
 
         })
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(201).send({ success: true, message: "project created successfully." })
 
@@ -174,7 +174,7 @@ export const addTeamMemberToWorkspace = async (req, res) => {
         numbers: true,
         symbols: '@$!%*?&',
         uppercase: true,
-        lowercase:true,
+        lowercase: true,
         strict: true
     });
 
@@ -198,7 +198,7 @@ export const addTeamMemberToWorkspace = async (req, res) => {
             })
         }
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         await sendMemberInvitation(body);
 
@@ -237,7 +237,7 @@ export const addMemberToProject = async (req, res) => {
 
         await db.insert(projectMembers).values({ userId: workspaceUser.id, projectId })
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(201).send({ success: true, message: "Team member added to project successfully" })
 
@@ -286,7 +286,7 @@ export const createTask = async (req, res) => {
             projectId, title, description, type, priority, assigneeId, status, dueDate: new Date(dueDate)
         })
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: true, message: "Task created successfully" })
 
@@ -325,8 +325,8 @@ export const updateWorkspace = async (req, res) => {
 
         await db.update(workspaces).set({ name, description }).where(eq(workspaces.id, workspaceId));
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
-        return res.status(200).send({success:true,message:"Workspace updated successfully"})
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
+        return res.status(200).send({ success: true, message: "Workspace updated successfully" })
 
     } catch (error) {
         console.log(error);
@@ -353,9 +353,9 @@ export const updateProject = async (req, res) => {
             return res.status(400).send({ success: false, message: "Task Id not found" })
         }
 
-        await db.update(projects).set({title, projectLink, description, status, priority, startDate, endDate });
+        await db.update(projects).set({ title, projectLink, description, status, priority, startDate, endDate });
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: true, message: "Project Updated Successfully." })
 
@@ -367,32 +367,27 @@ export const updateProject = async (req, res) => {
 
 // Update project member
 export const updateProjectMember = async (req, res) => {
-    const { email, projectId } = req.body;
+    const { userId, projectId } = req.body;
 
     try {
 
-        const [isValidProject] = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.memberId), eq(projects.id, projectId)
-        )));
+        const [isValidProject] = await db.select({ projectId: projects.id }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(and(eq(workspaces.ownerId, req.user.id), eq(projects.workspaceId, req.user.workspaceId)
+        ));
 
         if (!isValidProject) {
             return res.status(400).send({ success: false, message: "This is not your project" })
         }
 
-        const [workspaceUser] = await db.select({ id: workspaceUsers.id }).innerJoin(workspaceUsers, eq(users.id, workspaceUsers.userId)).where(eq(users.email, email))
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id }).from(workspaceUsers).where(eq(workspaceUsers.id, userId))
 
         if (!workspaceUser) {
             return res.status(400).send({ success: false, message: "No user found with this emailId" })
         }
 
-        const [project] = await db.select({ projectId: projects.id }).where(eq(projects.id, projectId));
 
-        if (!project) {
-            return res.status(400).send({ success: false, message: "Project not found" })
-        }
+        await db.update(projects).set({ projectLead: userId }).where(eq(projects.id, projectId))
 
-        await db.update(projectMembers).set({ projectLead: workspaceUser.id }).where(eq(projects.id, projectId))
-
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: false, message: "Project member updated successfully" })
 
@@ -405,7 +400,7 @@ export const updateProjectMember = async (req, res) => {
 // Update Task 
 export const updateTask = async (req, res) => {
     const { taskId } = req.params;
-    const { title, projectId, description, type, status, priority, assignee, dueDate } = req.body;
+    const { title, projectId, description, type, status, priority, assigneeId, dueDate } = req.body;
 
     try {
         const [isValidTask] = await db.select({ workspaceName: workspaces.name }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).innerJoin(tasks, eq(projects.id, tasks.projectId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(tasks.id, taskId)
@@ -414,7 +409,7 @@ export const updateTask = async (req, res) => {
         if (!isValidTask) {
             return res.status(400).send({ success: false, message: "Access Denied" })
         }
-        const [project] = await db.select({ projectId: projects.id }).where(eq(projects.id, projectId));
+        const [project] = await db.select({ projectId: projects.id }).from(projects).where(eq(projects.id, projectId));
 
         if (!project) {
             return res.status(400).send({ success: false, message: "Project Id not found" })
@@ -426,7 +421,7 @@ export const updateTask = async (req, res) => {
             return res.status(400).send({ success: false, message: "Task not found" })
         }
 
-        const [workspaceUser] = await db.select({ id: workspaceUsers.id, email: users.email }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(and(eq(workspaceUsers.workspaceId, req.user.workspaceId), eq(users.email, assignee)))
+        const [workspaceUser] = await db.select({ id: workspaceUsers.id, email: users.email }).from(workspaceUsers).innerJoin(users, eq(workspaceUsers.userId, users.id)).where(and(eq(workspaceUsers.workspaceId, req.user.workspaceId), eq(workspaceUsers.id, assigneeId)))
 
         if (!workspaceUser) {
             return res.status(400).send({ success: false, message: "User does not exists. Add members to team first" })
@@ -437,9 +432,9 @@ export const updateTask = async (req, res) => {
             await sendTaskInvitation(body)
         }
 
-        await db.update(tasks).set({ title, description, type, status, priority, assigneeId: workspaceUser.id, dueDate }).where(eq(tasks.id, taskId));
+        await db.update(tasks).set({ title, description, type, status, priority, assigneeId: workspaceUser.id, dueDate:new Date(dueDate) }).where(eq(tasks.id, taskId));
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: true, message: "Task Updated Successfully." })
 
@@ -478,7 +473,7 @@ export const updateTaskStatus = async (req, res) => {
 
         await db.update(tasks).set({ status }).where(eq(tasks.id, taskId));
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: true, message: "Task status Updated Successfully." })
 
@@ -505,7 +500,7 @@ export const deleteWorkspace = async (req, res) => {
 
         await db.delete(workspaces).where(eq(workspaces.id, workspaceId))
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: false, message: "Workspace deleted Successfully." })
 
@@ -537,7 +532,7 @@ export const deleteProject = async (req, res) => {
 
         await db.delete(projects).where(eq(projects.id, projectId))
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: false, message: "project deleted Successfully." })
     } catch (error) {
@@ -570,7 +565,7 @@ export const deleteTask = async (req, res) => {
 
         await db.delete(tasks).where(eq(tasks.id, taskId))
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: false, message: "task deleted Successfully." })
     } catch (error) {
@@ -583,24 +578,33 @@ export const deleteTask = async (req, res) => {
 export const deleteWorkspaceMember = async (req, res) => {
     const { userId } = req.params;
 
-    if(!userId){
-        return res.status(400).send({success:false,message:"User Id is not provided."})
+    if (!userId) {
+        return res.status(400).send({ success: false, message: "User Id is not provided." })
+    }
+    try {
+        const [isAuthorizedUser] = await db.select({ id: workspaceUsers.id, ownerId: workspaces.ownerId }).from(workspaceUsers).innerJoin(workspaces, eq(workspaces.ownerId, workspaceUsers.userId)).where(and(eq(workspaces.id, req.user.workspaceId), eq(workspaces.ownerId, req.user.id)))
+
+        if (!isAuthorizedUser) {
+            return res.status(403).send({ success: false, message: "Access Denied" })
+        }
+
+        if (userId === isAuthorizedUser.ownerId) {
+            return res.status(400).send({ success: false, message: "Cannot delete admin" })
+        }
+
+
+
+        await db.delete(workspaceUsers).where(eq(workspaceUsers.id, userId));
+
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
+
+        return res.status(200).send({ success: true, message: "Team member deleted Successfully." })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ success: false, message: "Internal Server Error" })
     }
 
-    const [isAuthorizedUser] = await db.select({ id: workspaceUsers.id, ownerId: workspaces.ownerId }).from(workspaceUsers).innerJoin(workspaces, eq(workspaces.ownerId, workspaceUsers.userId)).where(and(eq(workspaceUsers.userId, req.users.id), eq(workspaces.ownerId, req.user.id)))
-
-    if (!isAuthorizedUser) {
-        return res.status(403).send({ success: false, message: "Access Denied" })
-    }
-
-    if(userId === isAuthorizedUser.ownerId){
-        return res.status(400).send({success:false,message:"Cannot delete admin"})
-    }
-    await db.delete(workspaceUsers).where(eq(workspaceUsers.userId, userId))
-
-    await client.expire(`workspace:${req.user.workspaceId}`,0)
-
-    return res.status(200).send({ success: false, message: "Team member deleted Successfully." })
 }
 
 // delete Team member from projects
@@ -608,18 +612,18 @@ export const deleteProjectMember = async (req, res) => {
     const { userId, projectId } = req.query;
 
     try {
-        const [isValidProject] = await db.select({ projectId: projects.id, projectLead:projects.projectLead }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
+        const [isValidProject] = await db.select({ projectId: projects.id, projectLead: projects.projectLead }).from(projects).innerJoin(workspaces, eq(workspaces.id, projects.workspaceId)).where(or(and(eq(projects.projectLead, req.user.memberId), eq(projects.id, projectId)), and(eq(workspaces.ownerId, req.user.id), eq(projects.id, projectId)
         )));
 
         if (!isValidProject) {
             return res.status(400).send({ success: false, message: "This is not your project" })
         }
 
-        if(userId === isValidProject.projectLead){
+        if (userId === isValidProject.projectLead) {
             return res.status(400).send({ success: false, message: "First appoint any members as projectLead then delete the previous one" })
         }
 
-        const [projectMember] = await db.select({ id: projectMembers.id }).from(projectMembers).where(and(eq(projectMembers.userId, userId), eq(projectMembers.id, projectId)))
+        const [projectMember] = await db.select({ id: projectMembers.id }).from(projectMembers).where(and(eq(projectMembers.userId, userId), eq(projectMembers.projectId, projectId)))
 
         if (!projectMember) {
             return res.status(400).send({ success: false, message: "User not found" })
@@ -627,7 +631,7 @@ export const deleteProjectMember = async (req, res) => {
 
         await db.delete(projectMembers).where(eq(projectMembers.userId, userId))
 
-        await client.expire(`workspace:${req.user.workspaceId}`,0)
+        await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
         return res.status(200).send({ success: false, message: "Project member deleted Successfully." })
     } catch (error) {
@@ -649,7 +653,7 @@ export const addComments = async (req, res) => {
 
         await db.insert(comments).values({ taskId, content, authorId: req.user.memberId })
 
-        await client.expire(`comments:${taskId}`,0)
+        await client.expire(`comments:${taskId}`, 0)
 
         return res.status(201).send({ success: true, message: "Comment added successfully" })
 
@@ -675,10 +679,10 @@ export const getComments = async (req, res) => {
         }
 
         const cachedResult = await client.get(`comments:${taskId}`)
-        if(cachedResult){
+        if (cachedResult) {
             console.log("from cache")
             console.log(cachedResult)
-            return res.status(200).send({ success: true, comments: JSON.parse(cachedResult) }) 
+            return res.status(200).send({ success: true, comments: JSON.parse(cachedResult) })
         }
         const taskComments = await db.query.comments.findMany({
             where: eq(comments.taskId, taskId),
@@ -691,8 +695,8 @@ export const getComments = async (req, res) => {
             },
         });
 
-        await client.set(`comments:${taskId}`,JSON.stringify(taskComments));
-        await client.expire(`comments:${taskId}`,60*5)
+        await client.set(`comments:${taskId}`, JSON.stringify(taskComments));
+        await client.expire(`comments:${taskId}`, 60 * 5)
 
         return res.status(200).send({ success: true, comments: taskComments })
 
@@ -723,7 +727,7 @@ export const deleteComments = async (req, res) => {
 
             await db.delete(comments).where(eq(comments.taskId, taskId))
 
-            await client.expire(`comments:${taskId}`,0)
+            await client.expire(`comments:${taskId}`, 0)
 
             return res.status(200).send({ success: false, message: `Comment related to taskId ${taskId} deleted Successfully.` })
 
