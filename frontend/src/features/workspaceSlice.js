@@ -178,7 +178,7 @@ export const workspace = createApi({
         updateProjectMember: builder.mutation({
             query: (data) => ({
                 url: '/update-project-member',
-                method: 'PUT',
+                method: 'PATCH',
                 credentials:"include",
                 body: data
             }),
