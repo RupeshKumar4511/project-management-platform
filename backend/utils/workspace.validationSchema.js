@@ -165,6 +165,45 @@ export const createProjectSchema = {
     }
 }
 
+export const addProjectMemberSchema = {
+    email: {
+        trim:true,
+        notEmpty: {
+            errorMessage: "email is required."
+        },
+        isString: {
+            errorMessage: "email must be string."
+        },
+        isLength: {
+            options: {
+                min: 8,
+                max: 255
+            },
+            errorMessage: "email must be between 8 and 255 characters long."
+        },
+        matches: {
+            options: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/],
+            errorMessage: "email is not valid."
+        }
+    },
+    projectId: {
+        trim: true,
+        notEmpty: {
+            errorMessage: "project Id is required"
+        },
+        isString: {
+            errorMessage: "project id must be string"
+        },
+        isLength: {
+            options: {
+                min: 36,
+                max: 36
+            },
+            errorMessage: "project id should be 36 characters long."
+        }
+    },
+}
+
 export const createTaskSchema = {
     projectId: {
         trim: true,
@@ -469,8 +508,24 @@ export const updateProjectSchema = {
 }
 
 export const updateTaskSchema = {
-    projectId: {
+    taskId: {
         in: ['params'],
+        trim: true,
+        notEmpty: {
+            errorMessage: "task id is required"
+        },
+        isString: {
+            errorMessage: "task id must be string"
+        },
+        isLength: {
+            options: {
+                min: 36,
+                max: 36
+            },
+            errorMessage: "task id should be 36 characters long."
+        }
+    },
+    projectId: {
         trim: true,
         notEmpty: {
             errorMessage: "project id is required"
@@ -548,7 +603,7 @@ export const updateTaskSchema = {
             errorMessage: 'Invalid status provided'
         }
     },
-    assignee: {
+    assigneeId: {
         trim: true,
         notEmpty: {
             errorMessage: "assignee Id is required"
@@ -614,25 +669,21 @@ export const addTeamMemberToWorkspaceSchema = {
 }
 
 export const updateProjectMemberSchema = {
-    email: {
+    userId: {
         trim: true,
         notEmpty: {
-            errorMessage: "email is required."
+            errorMessage: "userId is required."
         },
         isString: {
-            errorMessage: "email must be string."
+            errorMessage: "userId must be string."
         },
         isLength: {
             options: {
-                min: 8,
-                max: 255
+                min: 36,
+                max: 36
             },
-            errorMessage: "email must be between 8 and 255 characters long."
+            errorMessage: "userId must be 36 characters long."
         },
-        matches: {
-            options: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/],
-            errorMessage: "email is not valid."
-        }
     },
     projectId: {
         trim: true,
