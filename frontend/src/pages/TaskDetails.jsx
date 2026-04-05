@@ -10,8 +10,8 @@ import { useSelector } from "react-redux";
 const TaskDetails = () => {
 
     const { data: currentWorkspace, isSuccess } = useGetWorkspaceDetailsQuery();
-    const [addComment, { isLoading: addingComment, isSuccess: addCommentIsSuccess, isError: addCommentIsError, error: addCommentError, reset:addCommentReset }] = useAddCommentMutation()
-    const [deleteComments, { isLoading: deletingComments, isSuccess: deleteCommentsIsSuccess, isError: deleteCommentsIsError, error: deleteCommentsError,reset:deleteCommentsReset }] = useDeleteCommentsMutation()
+    const [addComment, { isLoading: addingComment, isSuccess: addCommentIsSuccess, isError: addCommentIsError, error: addCommentError, reset: addCommentReset }] = useAddCommentMutation()
+    const [deleteComments, { isLoading: deletingComments, isSuccess: deleteCommentsIsSuccess, isError: deleteCommentsIsError, error: deleteCommentsError, reset: deleteCommentsReset }] = useDeleteCommentsMutation()
 
     const { authResponse: user } = useSelector((store) => store.auth);
 
@@ -29,7 +29,7 @@ const TaskDetails = () => {
 
     const calculateProgress = (project) => {
         const totalTasks = project.tasks.length;
-        if(totalTasks==0){
+        if (totalTasks == 0) {
             return 0;
         }
         const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
@@ -55,13 +55,13 @@ const TaskDetails = () => {
     };
     const { data: fetchedComments, isSuccess: fetchCommentIsSuccess, refetch } = useGetCommentQuery(task?.id);
 
-    useEffect(()=>{
-         refetch();
-        
-        setTimeout(async() => {
-           await fetchComments();
+    useEffect(() => {
+        refetch();
+
+        setTimeout(async () => {
+            await fetchComments();
         }, 1)
-    },[task,fetchedComments])
+    }, [task, fetchedComments])
 
     const fetchComments = async () => {
         if (fetchCommentIsSuccess) {
@@ -71,13 +71,13 @@ const TaskDetails = () => {
 
     const refresh = async () => {
         refetch();
-        
+
         setTimeout(() => {
             fetchComments();
         }, 1)
     }
 
-    const handleDeleteComments = async() => {
+    const handleDeleteComments = async () => {
         if (task) {
             deleteComments(task?.id);
             await refresh();
@@ -104,45 +104,43 @@ const TaskDetails = () => {
         }
     }, [taskId, task, fetchCommentIsSuccess]);
 
-    if (addingComment) {
-        toast.loading("Adding comment...");
-        setTimeout(()=>{
-            toast.dismissAll()
-        },120)
-    }
+    useEffect(() => {
+        if (addingComment) {
+            toast.loading("Adding comment...");
+        }
 
-    if (addCommentIsSuccess) {
-        toast.dismissAll();
-        toast.success("Comment added.");
-        addCommentReset()
+        if (addCommentIsSuccess) {
+            toast.dismissAll();
+            toast.success("Comment added.");
+            addCommentReset()
 
-    }
+        }
 
-    if (addCommentIsError) {
-        toast.dismissAll();
-        toast.error(addCommentError?.data?.message);
-        addCommentReset()
-    }
+        if (addCommentIsError) {
+            toast.dismissAll();
+            toast.error(addCommentError?.data?.message);
+            addCommentReset()
+        }
+    }, [addCommentIsError, addCommentIsSuccess, addingComment])
 
-    if (deletingComments) {
-        toast.loading("Deleting comment...");
-        setTimeout(()=>{
-            toast.dismissAll()
-        },120)
-    }
+    useEffect(() => {
+        if (deletingComments) {
+            toast.loading("Deleting comment...");
+        }
 
-    if (deleteCommentsIsSuccess) {
-        toast.dismissAll();
-        toast.success("Comment deleted.");
-        deleteCommentsReset()
+        if (deleteCommentsIsSuccess) {
+            toast.dismissAll();
+            toast.success("Comment deleted.");
+            deleteCommentsReset()
 
-    }
+        }
 
-    if (deleteCommentsIsError) {
-        toast.dismissAll();
-        toast.error(deleteCommentsError?.data?.message);
-        deleteCommentsReset()
-    }
+        if (deleteCommentsIsError) {
+            toast.dismissAll();
+            toast.error(deleteCommentsError?.data?.message);
+            deleteCommentsReset()
+        }
+    }, [deleteCommentsIsError, deleteCommentsIsSuccess, deletingComments])
 
     if (loading) return <div className="text-gray-500 dark:text-zinc-400 px-4 py-6">Loading task details...</div>;
     if (!task) return <div className="text-red-500 px-4 py-6">Task not found.</div>;

@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
 import { UsersIcon, Search, UserPlus, Shield, Activity } from "lucide-react";
 import InviteMemberDialog from "../components/InviteMemberDialog";
-import { useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
+import { useDeleteWorkspaceMemberMutation, useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
 import { CgProfile } from "react-icons/cg";
+import { Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
+
 const Team = () => {
 
     const [tasks, setTasks] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [users, setUsers] = useState([]);
-    const { data: currentWorkspace} = useGetWorkspaceDetailsQuery();
+
+
+    const { data: currentWorkspace } = useGetWorkspaceDetailsQuery();
+    const [deleteWorkspaceMember,{isLoading:deletingWorkspaceMember,isSuccess:deleteWorkspaceMemberIsSuccess,isError:deleteWorkspaceMemberIsError,error:deleteWorkspaceMemberError,reset:deleteWorkspaceMemberReset}] = useDeleteWorkspaceMemberMutation()
     const projects = currentWorkspace?.details?.projects || [];
 
     const filteredUsers = users.filter(
@@ -22,6 +28,29 @@ const Team = () => {
         setUsers(currentWorkspace?.details?.workspaceUsers || []);
         setTasks(currentWorkspace?.details?.projects?.reduce((acc, project) => [...acc, ...project.tasks], []) || []);
     }, [currentWorkspace]);
+
+    const handleDeleteWorkspaceMember = (id)=>{
+        deleteWorkspaceMember(id);
+    }
+
+    if(deleteWorkspaceMemberIsSuccess){
+        toast.success("Workspace member deleted successfully.");
+        deleteWorkspaceMemberReset();
+        setTimeout(()=>{
+            toast.dismissAll();
+        },700)
+        
+    }
+
+    if(deleteWorkspaceMemberIsError){
+        toast.error(deleteWorkspaceMemberError?.data?.message);
+        deleteWorkspaceMemberReset();
+        setTimeout(()=>{
+            toast.dismissAll();
+        },700)
+        
+    }
+
 
     return (
         <div className="space-y-6 max-w-6xl mx-auto">
@@ -146,13 +175,24 @@ const Team = () => {
                                             <td className="px-6 py-2.5 whitespace-nowrap">
                                                 <span
                                                     className={`px-2 py-1 text-xs rounded-md ${user.role.split(":")[1].toUpperCase() === "ADMIN"
-                                                            ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
-                                                            : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
+                                                        ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
+                                                        : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
                                                         }`}
                                                 >
                                                     {user.role.split(":")[1].toUpperCase() || "User"}
                                                 </span>
                                             </td>
+
+                                            {user.role.split(":")[1].toUpperCase() === "ADMIN"
+                                                ? "" :
+                                                <button
+                                                    onClick={()=>handleDeleteWorkspaceMember(user.id)}
+                                                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                    {deletingWorkspaceMember?'Deleting':''}
+                                                </button>
+                                            }
                                         </tr>
                                     ))}
                                 </tbody>
@@ -184,8 +224,8 @@ const Team = () => {
                                     <div>
                                         <span
                                             className={`px-2 py-1 text-xs rounded-md ${user.role === "ADMIN"
-                                                    ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
-                                                    : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
+                                                ? "bg-purple-100 dark:bg-purple-500/20 text-purple-500 dark:text-purple-400"
+                                                : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
                                                 }`}
                                         >
                                             {user.role || "User"}

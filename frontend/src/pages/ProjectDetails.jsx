@@ -19,6 +19,7 @@ export default function ProjectDetail() {
     const projects = currentWorkspace?.details?.projects || [];
 
     const [project, setProject] = useState(null);
+    const [taskTobeUpdated,setUpdatedTask] = useState(null);
     const [tasks, setTasks] = useState([]);
     const [showCreateTask, setShowCreateTask] = useState(false);
     const [activeTab, setActiveTab] = useState(tab || "tasks");
@@ -114,7 +115,7 @@ export default function ProjectDetail() {
                 <div className="mt-6">
                     {activeTab === "tasks" && (
                         <div className=" dark:bg-zinc-900/40 rounded max-w-6xl">
-                            <ProjectTasks tasks={tasks} />
+                            <ProjectTasks tasks={tasks} setShowCreateTask={setShowCreateTask} setUpdatedTask={setUpdatedTask} />
                         </div>
                     )}
                     {activeTab === "analytics" && (
@@ -136,7 +137,7 @@ export default function ProjectDetail() {
             </div>
 
             {/* Create Task Modal */}
-            {showCreateTask && <CreateTaskDialog showCreateTask={showCreateTask} setShowCreateTask={setShowCreateTask} projectId={id} />}
+            {showCreateTask && <CreateTaskDialog showCreateTask={showCreateTask} setShowCreateTask={setShowCreateTask} projectId={id} taskTobeUpdated={taskTobeUpdated} />}
         </div>
     );
 }
