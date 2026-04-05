@@ -23,6 +23,7 @@ import CreateWorkspaceForm from './components/CreateWorkspaceForm.jsx'
 import Profile from './components/Profile.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import Settings from './components/Settings.jsx'
+import Chatbot from './components/ChatBot.jsx'
 
 const router = createBrowserRouter([
 
@@ -56,8 +57,10 @@ const router = createBrowserRouter([
       { path: '/app/workspace/settings', element: <ProtectedRoute> <Settings /></ProtectedRoute> },
       { path: '/app/workspace/projectsDetail', element: <ProtectedRoute> <ProjectDetails /></ProtectedRoute> },
       { path: '/app/workspace/taskDetails', element: <ProtectedRoute> <TaskDetails /></ProtectedRoute> },
+      { path: '/app/workspace/chatbot', element: <ProtectedRoute> <Chatbot /></ProtectedRoute> },
     ]
-  }
+  },
+  
 
 ])
 createRoot(document.getElementById('root')).render(
