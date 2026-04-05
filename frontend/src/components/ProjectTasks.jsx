@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 import toast from "react-hot-toast";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDeleteTaskMutation, useGetWorkspaceDetailsQuery, useUpdateTaskStatusMutation } from "../features/workspaceSlice";
-import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from "lucide-react";
+import { Bug, CalendarIcon, GitCommit, MessageSquare, Pencil, Square, Trash, XIcon, Zap } from "lucide-react";
 import { CgProfile } from "react-icons/cg";
 
 const typeIcons = {
@@ -20,13 +20,13 @@ const priorityTexts = {
     HIGH: { background: "bg-emerald-100 dark:bg-emerald-950", prioritycolor: "text-emerald-600 dark:text-emerald-400" },
 };
 
-const ProjectTasks = ({ tasks }) => {
+const ProjectTasks = ({ tasks,setShowCreateTask,setUpdatedTask }) => {
     const navigate = useNavigate();
     const [selectedTasks, setSelectedTasks] = useState([]);
 
-    const [updateTaskStatus, { isLoading: updatingTask, isSuccess: updateTaskIsSuccess, isError: updateTaskIsError, error: updateTaskError,reset:updateTaskReset }] = useUpdateTaskStatusMutation()
+    const [updateTaskStatus, { isLoading: updatingTask, isSuccess: updateTaskIsSuccess, isError: updateTaskIsError, error: updateTaskError, reset: updateTaskReset }] = useUpdateTaskStatusMutation()
 
-    const [deleteTask, { isLoading: deletingTask, isSuccess: deleteTaskIsSuccess, isError: deleteTaskIsError, error: deleteTaskError , reset:deleteTaskReset}] = useDeleteTaskMutation();
+    const [deleteTask, { isLoading: deletingTask, isSuccess: deleteTaskIsSuccess, isError: deleteTaskIsError, error: deleteTaskError, reset: deleteTaskReset }] = useDeleteTaskMutation();
 
     const [filters, setFilters] = useState({
         status: "",
@@ -61,7 +61,7 @@ const ProjectTasks = ({ tasks }) => {
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
-        console.log(name,value)
+        console.log(name, value)
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -70,21 +70,23 @@ const ProjectTasks = ({ tasks }) => {
         updateTaskStatus({ taskId, status: newStatus, projectId });
     };
 
-    if (updatingTask) {
-        toast.loading("Updating status...");
-    }
+    useEffect(() => {
+        if (updatingTask) {
+            toast.loading("Updating status...");
+        }
 
-    if (updateTaskIsSuccess) {
-        toast.dismissAll();
-        toast.success("Task status updated successfully");
-        updateTaskReset()
-    }
+        if (updateTaskIsSuccess) {
+            toast.dismissAll();
+            toast.success("Task status updated successfully");
+            updateTaskReset()
+        }
 
-    if (updateTaskIsError) {
-        toast.dismissAll();
-        toast.error(updateTaskError?.data?.message);
-        updateTaskReset()
-    }
+        if (updateTaskIsError) {
+            toast.dismissAll();
+            toast.error(updateTaskError?.data?.message);
+            updateTaskReset()
+        }
+    }, [updateTaskIsError, updateTaskIsSuccess, updatingTask])
 
     const handleDelete = async () => {
 
@@ -95,21 +97,33 @@ const ProjectTasks = ({ tasks }) => {
 
     };
 
-    if (deletingTask) {
-        toast.loading("Deleting tasks...");
-    }
+    const handleUpdate = async () => {
 
-    if (deleteTaskIsSuccess) {
-        toast.dismissAll();
-        toast.success("Tasks deleted successfully");
-        deleteTaskReset()
-    }
+        const confirm = window.confirm("Are you sure you want to update the selected tasks?");
+        if (!confirm) return;
+        setShowCreateTask(true);
+        const taskId = [selectedTasks];
+        
+        setUpdatedTask(tasks.filter(task=>task.id==taskId)[0])
 
-    if (deleteTaskIsError) {
-        toast.dismissAll();
-        toast.error(deleteTaskError?.data?.message);
-        deleteTaskReset()
-    }
+        setSelectedTasks([])
+        
+
+    };
+
+    useEffect(() => {
+        if (deleteTaskIsSuccess) {
+            toast.dismissAll();
+            toast.success("Tasks deleted successfully");
+            deleteTaskReset()
+        }
+
+        if (deleteTaskIsError) {
+            toast.dismissAll();
+            toast.error(deleteTaskError?.data?.message);
+            deleteTaskReset()
+        }
+    }, [deleteTaskIsSuccess, deleteTaskIsError])
 
     const getUserNameById = (assigneeId) => {
         const user = currentWorkspace?.details?.workspaceUsers?.filter(users => users.id == assigneeId)[0];
@@ -164,9 +178,15 @@ const ProjectTasks = ({ tasks }) => {
                 )}
 
                 {selectedTasks.length > 0 && (
-                    <button type="button" onClick={handleDelete} className="px-3 py-1 flex items-center gap-2 rounded bg-gradient-to-br from-indigo-400 to-indigo-500 text-zinc-100 dark:text-zinc-200 text-sm transition-colors" >
-                        <Trash className="size-3" /> Delete
+                    <div className="flex gap-2">
+                        <button type="button" onClick={handleDelete} className="px-3 py-1 flex items-center gap-2 rounded bg-gradient-to-br from-indigo-400 to-indigo-500 text-zinc-100 dark:text-zinc-200 text-sm transition-colors" >
+                        <Trash className="size-3" /> {deletingTask ? "Deleting" : "Delete"}
                     </button>
+
+                    {selectedTasks.length == 1 && <button type="button" onClick={handleUpdate} className="px-3 py-1 flex items-center gap-2 rounded bg-gradient-to-br from-indigo-400 to-indigo-500 text-zinc-100 dark:text-zinc-200 text-sm transition-colors" >
+                        <Pencil className="size-3" /> Update
+                    </button>}
+                    </div>
                 )}
             </div>
 

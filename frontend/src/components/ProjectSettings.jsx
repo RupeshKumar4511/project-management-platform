@@ -1,16 +1,29 @@
 import { format } from "date-fns";
-import { Plus, Save } from "lucide-react";
+import { Pencil, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import AddProjectMember from "./AddProjectMember";
 import LoadingSpinner from "./LoadingSpinner";
 import SuccessModal from "./SuccessModal";
 import ErrorPage from "./ErrorPage";
-import { useGetWorkspaceDetailsQuery, useUpdateProjectMutation } from "../features/workspaceSlice";
+import toast from "react-hot-toast";
+import { useDeleteProjectMemberMutation, useDeleteProjectMutation, useGetWorkspaceDetailsQuery, useUpdateProjectMemberMutation, useUpdateProjectMutation } from "../features/workspaceSlice";
+import { useNavigate } from "react-router-dom";
 
 export default function ProjectSettings({ project }) {
+
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
     const { data: currentWorkspace, isLoading } = useGetWorkspaceDetailsQuery();
+
     const [updateProject, { isLoading: updatingProject, isSuccess: updateProjectIsSuccess, isError: updateProjectIsError, error: updateProjectError }] = useUpdateProjectMutation();
+
+    const [deleteProject, { isLoading: deletingProject, isSuccess: deleteProjectIsSuccess, isError: deleteProjectIsError, error: deleteProjectError, reset: deleteProjectReset }] = useDeleteProjectMutation();
+
+    const [deleteProjectMember, { isLoading: deletingProjectMember, isSuccess: deleteProjectMemberIsSuccess, isError: deleteProjectMemberIsError, error: deleteProjectMemberError, reset: deleteProjectMemberReset }] = useDeleteProjectMemberMutation();
+
+    const [updateProjectMember, { isLoading: updatingProjectMember, isSuccess: updateProjectMemberIsSuccess, isError: updateProjectMemberIsError, error: updateProjectMemberError, reset: updateProjectMemberReset }] = useUpdateProjectMemberMutation();
+
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -23,21 +36,23 @@ export default function ProjectSettings({ project }) {
     } = useForm({
         defaultValues: {
             title: "New Website Launch",
-            projectLink: "https://github.com/RupeshKumar4511/project-managment-workspace-hub",
+            projectLink: "https://github.com/RupeshKumar4511/project-managment-platform",
             description: "Initial launch for new web platform.",
             status: "PLANNING",
             priority: "MEDIUM",
-            startDate: new Date("2025-09-10"),
-            endDate: new Date("2025-10-15"),
+            startDate: new Date("2026-01-10"),
+            endDate: new Date("2026-01-15"),
             progress: 0,
         }
     });
 
     const progress = watch("progress");
 
+    const navigate = useNavigate()
+
     const calculateProgress = (project) => {
         const totalTasks = project.tasks.length;
-        if(totalTasks==0){
+        if (totalTasks == 0) {
             return 0;
         }
         const completedTasks = project.tasks.reduce((acc, current) => current.status == 'DONE' ? acc + 1 : acc, 0);
@@ -56,6 +71,14 @@ export default function ProjectSettings({ project }) {
         }
     }, [project, reset]);
 
+    const getMemberEmail = (member) => {
+        return currentWorkspace.details.workspaceUsers
+            .filter(
+                (user) =>
+                    user.id == member?.userId
+            )[0]?.user.email
+    }
+
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
@@ -68,6 +91,75 @@ export default function ProjectSettings({ project }) {
     const handleClick = (setOpen) => {
         setOpen(false);
     }
+
+    const handleDeleteProject = (id) => {
+        deleteProject(id)
+    }
+
+    const handleDeleteProjectMember = (id, email) => {
+        const confirm = window.confirm(`Do you want to delete "${email}" from current project?`)
+        if (!confirm) return;
+
+        deleteProjectMember({ userId: id, projectId: project.id })
+    }
+
+    const handleUpdateProjectMember = (id, email) => {
+        const confirm = window.confirm(`Do you want to appoint "${email}" as projectLead?`)
+        if (!confirm) return;
+        updateProjectMember({ userId: id, projectId: project.id })
+    }
+
+    if (deleteProjectIsSuccess) {
+        toast.success("Project Deleted Successfully");
+        deleteProjectReset()
+        setTimeout(() => {
+            toast.dismissAll();
+            navigate('/app/workspace')
+        },300)
+    }
+
+    if (deleteProjectMemberIsSuccess) {
+        toast.success("Project member Deleted Successfully");
+        deleteProjectMemberReset()
+        setTimeout(() => {
+            toast.dismissAll()
+        },700)
+    }
+
+    if (updateProjectMemberIsSuccess) {
+        toast.success("Project member updated successfully");
+        updateProjectMemberReset()
+        setTimeout(() => {
+            toast.dismissAll()
+        },700)
+    }
+
+    if (deleteProjectIsError) {
+        toast.error(deleteProjectError?.data?.message);
+        deleteProjectReset()
+        setTimeout(() => {
+            toast.dismissAll();
+            navigate('/app/workspace')
+        },700)
+    }
+
+    if (deleteProjectMemberIsError) {
+        toast.error(deleteProjectMemberError?.data?.message);
+        deleteProjectMemberReset()
+        setTimeout(() => {
+            toast.dismissAll()
+        },700)
+    }
+
+    if (updateProjectMemberIsError) {
+        toast.error(updateProjectMemberError?.data?.message);
+        updateProjectMemberReset()
+        setTimeout(() => {
+            toast.dismissAll()
+        },700)
+    }
+
+
 
 
     const inputClasses =
@@ -236,7 +328,47 @@ export default function ProjectSettings({ project }) {
                         {updatingProject ? "Saving..." : "Save Changes"}
                     </button>
                 </form>
+
+                {/* Delete Project */}
+                <div className={`${cardClasses} mt-4`}>
+                    <h2 className="text-lg font-medium text-red-500 mb-4">
+                        Danger Zone
+                    </h2>
+
+                    {!showDeleteConfirm ? (
+                        <button
+                            onClick={() => setShowDeleteConfirm(true)}
+                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                        >
+                            <Trash2 className="size-4" />
+                            Delete Project
+                        </button>
+                    ) : (
+                        <div className="space-y-3">
+                            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                                Are you sure? This action cannot be undone.
+                            </p>
+
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => handleDeleteProject(project.id)}
+                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                                >
+                                    {deletingProject ? "Deleting" : "Yes, Delete"}
+                                </button>
+
+                                <button
+                                    onClick={() => setShowDeleteConfirm(false)}
+                                    className="px-4 py-2 rounded text-sm border border-zinc-300 dark:border-zinc-700"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
+
 
             {/* Team Members */}
             <div className="space-y-6">
@@ -272,19 +404,31 @@ export default function ProjectSettings({ project }) {
                                 >
                                     <span>
                                         {
-                                            currentWorkspace.details.workspaceUsers
-                                                .filter(
-                                                    (user) =>
-                                                        user.id == member?.userId
-                                                )[0]?.user.email
+                                            getMemberEmail(member)
                                         }
                                     </span>
 
-                                    {project.projectLead === member.userId && (
+                                    {project.projectLead === member.userId ? (
                                         <span className="px-2 py-0.5 rounded-xs ring ring-zinc-200 dark:ring-zinc-600">
                                             Project Lead
                                         </span>
-                                    )}
+                                    ) : <div className="flex gap-2">
+                                        <button
+                                            title={"Edit as Project Lead"}
+                                            onClick={() => handleUpdateProjectMember(member.userId, getMemberEmail(member))}
+                                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+                                        >
+                                            <Pencil className="size-4" />
+                                            {updatingProjectMember ? "Updating" : ""}
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteProjectMember(member.userId, getMemberEmail(member))}
+                                            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
+                                        >
+                                            <Trash2 className="size-4" />
+                                            {deletingProjectMember ? "Deleting" : ""}
+                                        </button>
+                                    </div>}
                                 </div>
                             ))}
                         </div>

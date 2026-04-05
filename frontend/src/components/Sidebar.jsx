@@ -47,7 +47,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     <ProjectSidebar />
                 </div>
 
-                <NavLink to="https://visbert.demo.datexis.com/" target='_blank'   className="mx-5 my-4 text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Ask to AI</NavLink>
+                <NavLink to="/app/workspace/chatbot"  className="mx-5 my-4 text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">Ask to AI</NavLink>
 
 
             </div>

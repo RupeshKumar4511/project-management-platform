@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useForm } from "react-hook-form";
-import { useCreateTaskMutation, useGetWorkspaceDetailsQuery } from "../features/workspaceSlice";
+import { useCreateTaskMutation, useGetWorkspaceDetailsQuery, useUpdateTaskMutation } from "../features/workspaceSlice";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
 import SuccessModal from "./SuccessModal";
 import ErrorPage from "./ErrorPage";
 
-export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
+export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId, taskTobeUpdated }) {
 
     const { data: currentWorkspace, isLoading, isError } = useGetWorkspaceDetailsQuery();
     const project = currentWorkspace?.details?.projects.find((p) => p.id === projectId);
@@ -23,9 +23,14 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
         }
     })
 
-    const [createTask, { isLoading: creatingTask, isSuccess: createTaskIsSuccess, isError: createTaskIsError,error:createTaskError }] = useCreateTaskMutation();
+    const [createTask, { isLoading: creatingTask, isSuccess: createTaskIsSuccess, isError: createTaskIsError, error: createTaskError }] = useCreateTaskMutation();
+
+    const [updateTask, { isLoading:updatingTask, isSuccess: updateTaskIsSuccess, isError: updateTaskIsError, error: updateTaskError }] = useUpdateTaskMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const navigate = useNavigate()
+    
+
+
+
 
     const {
         register,
@@ -39,10 +44,16 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             type: "TASK",
             status: "TODO",
             priority: "MEDIUM",
-            assigneeId: "",
+            assigneeId: null,
             dueDate: ""
         }
     });
+
+    useEffect(() => {
+        if(taskTobeUpdated){
+            reset({ title: taskTobeUpdated.title, description: taskTobeUpdated.description, type: taskTobeUpdated.type, status: taskTobeUpdated.status, priority: taskTobeUpdated.priority, assigneeId: taskTobeUpdated.assigneeId, dueDate: format(new Date(taskTobeUpdated.dueDate), "dd-MM-yyyy") })
+        }
+    }, [reset, taskTobeUpdated])
 
     const dueDate = watch("dueDate");
 
@@ -51,7 +62,12 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
         try {
 
-            createTask({ ...data, projectId: project.id })
+            if(taskTobeUpdated){
+                console.log({...data,projectId:taskTobeUpdated.projectId,taskId:taskTobeUpdated.id})
+                updateTask({...data,projectId:taskTobeUpdated.projectId,taskId:taskTobeUpdated.id})
+            }else{
+                createTask({ ...data, projectId: project.projectId })
+            }
 
         } catch (error) {
             console.error(error);
@@ -71,7 +87,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             assigneeId: "",
             dueDate: ""
         });
-        
+
     }
 
     if (isLoading) {
@@ -84,6 +100,12 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
             <SuccessModal handleClick={handleClick} message={"Your task is created successfully.."} />
         )
     }
+    if (updateTaskIsSuccess) {
+        return (
+            <SuccessModal handleClick={handleClick} message={"Your task is updated successfully.."} />
+        )
+    }
+
     if (isError) {
         return (<ErrorPage />)
     }
@@ -92,7 +114,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/60 backdrop-blur">
             <div className="bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-800 rounded-lg shadow-lg w-full max-w-md p-6 text-zinc-900 dark:text-white">
 
-                <h2 className="text-xl font-bold mb-4">Create New Task</h2>
+                <h2 className="text-xl font-bold mb-4">{taskTobeUpdated ? "Update Task" : "Create New Task"}</h2>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
@@ -197,13 +219,16 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
                         {dueDate && (
                             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                                {format(new Date(dueDate), "PPP")}
+                                {format(new Date(dueDate), "dd-MM-yyyy")}
                             </p>
                         )}
 
                     </div>
-                    {creatingTask && createTask}
+                    {creatingTask && <LoadingSpinner/>}
                     {createTaskIsError && <p className="text-red-500">{createTaskError?.data?.message}</p>}
+                    
+                    {updatingTask && <LoadingSpinner/>}
+                    {updateTaskIsError && <p className="text-red-500">{updateTaskError?.data?.message}</p>}
 
                     {/* Footer */}
                     <div className="flex justify-end gap-2 pt-2">
@@ -221,7 +246,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                             disabled={isSubmitting}
                             className="rounded px-5 py-2 text-sm bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white dark:text-zinc-200 transition"
                         >
-                            {creatingTask ? "Creating..." : "Create Task"}
+                            {creatingTask ? "Creating..." : taskTobeUpdated ? "Update Task" : "Create Task"}
                         </button>
 
                     </div>
