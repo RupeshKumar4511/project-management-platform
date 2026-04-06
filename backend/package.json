@@ -29,6 +29,7 @@
     "openai": "^6.33.0",
     "pg": "^8.16.3",
     "redis": "^5.11.0",
+    "resend": "^6.10.0",
     "unique-username-generator": "^1.5.1"
   }
 }

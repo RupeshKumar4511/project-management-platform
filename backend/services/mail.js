@@ -2,12 +2,13 @@ import otpModel from '../models/otp.model.js'
 import { db } from '../config/db.js'
 import bcrypt from 'bcrypt'
 import { config } from 'dotenv';
-import nodemailer from 'nodemailer'
-import sgMail from '@sendgrid/mail';
+import { Resend } from 'resend';
+// import nodemailer from 'nodemailer'
+// import sgMail from '@sendgrid/mail';
 config()
 
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // const transporter = nodemailer.createTransport({
 //     host: "smtp.gmail.com",
@@ -18,6 +19,8 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 //         pass: process.env.GMAIL_APP_PASSWORD
 //     }
 // });
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOtp = async (body) => {
     const { email } = body;
@@ -37,13 +40,18 @@ const sendOtp = async (body) => {
 
     }
 
-    const response = await sgMail.send(mailOptions);
+    const { data: response, error } = await resend.emails.send(mailOptions);
     // const response = await transporter.sendMail(mailOptions);
+
+    if (error) {
+        throw new Error(error.message || JSON.stringify(error))
+    }
     console.log(response);
 
     const hashedOtp = await bcrypt.hash(otp.toString(), 10)
     const expiresAt = new Date(Date.now() + 1000 * 60 * 5);// 5 minute
     await db.insert(otpModel).values({ emailId: email, otp: hashedOtp, expiredAt: expiresAt })
+
 
 
 }
@@ -85,13 +93,18 @@ export const sendMemberInvitation = async (body) => {
 
     }
 
-    const response = await transporter.sendMail(mailOptions);
+    const { data: response, error } = await resend.emails(mailOptions);
+
+    if (error) {
+       throw new Error(error.message || JSON.stringify(error))
+    }
+
     console.log(response);
 
 }
 
 export const sendTaskInvitation = async (body) => {
-    const { email, title, description,workspaceName } = body;
+    const { email, title, description, workspaceName } = body;
 
     const mailOptions = {
         from: process.env.EMAIL,
@@ -105,6 +118,11 @@ export const sendTaskInvitation = async (body) => {
 
     }
 
-    const response = await transporter.sendMail(mailOptions);
+    const {data:response,error} = await resend.emails(mailOptions);
+
+    if (error) {
+        throw new Error(error.message || JSON.stringify(error))
+    }
+
     console.log(response);
 }
