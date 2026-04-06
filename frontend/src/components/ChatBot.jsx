@@ -14,7 +14,6 @@ const Chatbot = () => {
       body:JSON.stringify({query}),
     })
     const data = await response.json();
-    console.log(data);
     setIsLoading(false)
     setResponse(data?.explanation)
   }
