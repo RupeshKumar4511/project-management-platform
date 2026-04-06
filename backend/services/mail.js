@@ -3,20 +3,21 @@ import { db } from '../config/db.js'
 import bcrypt from 'bcrypt'
 import { config } from 'dotenv';
 import nodemailer from 'nodemailer'
+import sgMail from '@sendgrid/mail';
 config()
 
 
-// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-        user: process.env.EMAIL,
-        pass: process.env.GMAIL_APP_PASSWORD
-    }
-});
+// const transporter = nodemailer.createTransport({
+//     host: "smtp.gmail.com",
+//     port: 587,
+//     secure: false,
+//     auth: {
+//         user: process.env.EMAIL,
+//         pass: process.env.GMAIL_APP_PASSWORD
+//     }
+// });
 
 const sendOtp = async (body) => {
     const { email } = body;
@@ -36,8 +37,8 @@ const sendOtp = async (body) => {
 
     }
 
-    // const response = await sgMail.send(mailOptions);
-    const response = await transporter.sendMail(mailOptions);
+    const response = await sgMail.send(mailOptions);
+    // const response = await transporter.sendMail(mailOptions);
     console.log(response);
 
     const hashedOtp = await bcrypt.hash(otp.toString(), 10)
