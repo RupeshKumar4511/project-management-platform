@@ -3,7 +3,7 @@ import ensureAuth from "./ensureAuth";
 
 export const signUp = createAsyncThunk('auth/signup', async (userData, thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/auth/signup', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/signup', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -20,7 +20,7 @@ export const signUp = createAsyncThunk('auth/signup', async (userData, thunkAPI)
 
 export const signIn = createAsyncThunk('auth/signin', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/auth/login', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/login', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             credentials: "include",
@@ -39,7 +39,7 @@ export const signIn = createAsyncThunk('auth/signin', async (userData,thunkAPI) 
 export const signOut = createAsyncThunk('auth/signOut', async (userData,thunkAPI) => {
     try {
         await ensureAuth();
-        const response = await fetch('http://localhost:3000/api/v1/auth/logout', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/logout', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             credentials: "include",
@@ -64,7 +64,7 @@ export const signOut = createAsyncThunk('auth/signOut', async (userData,thunkAPI
 export const updateUser = createAsyncThunk('auth/update-user', async (userData,thunkAPI) => {
     try {
         await ensureAuth();
-        const response = await fetch('http://localhost:3000/api/v1/users/update', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/users/update', {
             method: "PATCH",
             headers: { "Content-Type": 'application/json' },
             credentials: "include",
@@ -84,7 +84,7 @@ export const updateUser = createAsyncThunk('auth/update-user', async (userData,t
 
 export const sendMail = createAsyncThunk('auth/sendMail', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/auth/send-email', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/send-email', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -101,7 +101,7 @@ export const sendMail = createAsyncThunk('auth/sendMail', async (userData,thunkA
 
 export const sendMail2 = createAsyncThunk('auth/sendMail2', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/auth/send-email', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/send-email', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -118,7 +118,7 @@ export const sendMail2 = createAsyncThunk('auth/sendMail2', async (userData,thun
 
 export const verifyUser = createAsyncThunk('auth/verifyUser', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/auth/verify-user', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/verify-user', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)
@@ -135,7 +135,7 @@ export const verifyUser = createAsyncThunk('auth/verifyUser', async (userData,th
 
 export const resetPassword = createAsyncThunk('auth/reset-password', async (userData,thunkAPI) => {
     try {
-        const response = await fetch('http://localhost:3000/api/v1/auth/reset-password', {
+        const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/reset-password', {
             method: "POST",
             headers: { "Content-Type": 'application/json' },
             body: JSON.stringify(userData)

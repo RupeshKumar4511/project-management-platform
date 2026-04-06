@@ -7,7 +7,7 @@ const Chatbot = () => {
   const textareaRef = useRef(null);
 
   const getQueryResponse = async(query)=>{
-    const response = await fetch('http://localhost:3000/api/v1/chat',{
+    const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/chat',{
       method:"POST",
       headers: { "Content-Type": 'application/json' },
       credentials:'include',
