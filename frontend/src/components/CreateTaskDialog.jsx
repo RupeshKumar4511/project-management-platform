@@ -66,7 +66,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                 console.log({...data,projectId:taskTobeUpdated.projectId,taskId:taskTobeUpdated.id})
                 updateTask({...data,projectId:taskTobeUpdated.projectId,taskId:taskTobeUpdated.id})
             }else{
-                createTask({ ...data, projectId: project.projectId })
+                createTask({ ...data, projectId: project.id })
             }
 
         } catch (error) {
