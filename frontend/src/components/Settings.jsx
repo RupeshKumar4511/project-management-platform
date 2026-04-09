@@ -56,8 +56,8 @@ export default function Settings() {
     };
 
     const handleDelete = () => {
-        console.log(workspace.id)
-        // deleteWorkspace(workspace.id);
+        
+        deleteWorkspace(workspace.id);
     };
 
     const handleUpdateWorkspace = (setOpen) => {
