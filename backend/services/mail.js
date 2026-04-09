@@ -34,7 +34,7 @@ const sendOtp = async (body) => {
         subject: 'Your OTP Code',
         text: `Your OTP Code is ${otp}`,
         html: `<div>
-            <h2>Welcome to Workspace Hub </h2>
+            <h2>Welcome to Projectly </h2>
             <h2>Your OTP Code is ${otp}</h2>
         </div>`
 
@@ -70,7 +70,7 @@ export const sendMemberInvitation = async (body) => {
             to: email,
             subject: `Invitation from ${workspaceName}`,
             html: `<div>
-            <h2>Welcome to Workspace Hub </h2>
+            <h2>Welcome to Projectly </h2>
             <p>You can join ${workspaceName} by using your own email and password : </p>
         </div>`
 
@@ -83,7 +83,7 @@ export const sendMemberInvitation = async (body) => {
         to: email,
         subject: `Member Invitation from ${workspaceName}`,
         html: `<div>
-            <h2>Welcome to Workspace Hub </h2>
+            <h2>Welcome to Projectly </h2>
             <p>You can join ${workspaceName} by using following credentials : </p>
             <h3>Username is ${username}</h3>
             <p>You can also use your email as username</p>
