@@ -93,7 +93,7 @@ export const sendMemberInvitation = async (body) => {
 
     }
 
-    const { data: response, error } = await resend.emails(mailOptions);
+    const { data: response, error } = await resend.emails.send(mailOptions);
 
     if (error) {
        throw new Error(error.message || JSON.stringify(error))
@@ -118,7 +118,7 @@ export const sendTaskInvitation = async (body) => {
 
     }
 
-    const {data:response,error} = await resend.emails(mailOptions);
+    const {data:response,error} = await resend.emails.send(mailOptions);
 
     if (error) {
         throw new Error(error.message || JSON.stringify(error))
