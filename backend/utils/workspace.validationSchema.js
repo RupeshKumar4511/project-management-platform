@@ -108,6 +108,7 @@ export const createProjectSchema = {
         }
     },
     priority: {
+        in: ['body'],
         trim: true,
         notEmpty: {
             errorMessage: "priority is required"
@@ -264,6 +265,7 @@ export const createTaskSchema = {
         }
     },
     priority: {
+        in:['body'],
         trim: true,
         notEmpty: {
             errorMessage: "priority is required"
@@ -474,6 +476,7 @@ export const updateProjectSchema = {
         }
     },
     priority: {
+        in:['body'],
         trim: true,
         notEmpty: {
             errorMessage: "priority is required"
@@ -584,6 +587,7 @@ export const updateTaskSchema = {
         }
     },
     priority: {
+        in:['body'],
         trim: true,
         notEmpty: {
             errorMessage: "priority is required"
