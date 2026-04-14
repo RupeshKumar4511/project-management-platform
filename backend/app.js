@@ -19,6 +19,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended:true}))
 
+app.get('/',async(req,res)=>{
+  return res.status(200).send({title:"Projectly-Backend",Health:"Ok"})
+})
 
 app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/users/',ensureAuth,userRoutes)
