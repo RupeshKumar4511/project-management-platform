@@ -1,0 +1,47 @@
+version: 0.2
+
+env:
+  parameter-store:
+    DOCKER_REGISTRY_USERNAME: /myapp/docker/username
+    DOCKER_REGISTRY_PASSWORD: /myapp/docker/password
+    EC2_INSTANCE_ID: /myapp/ec2/instance-id
+    VITE_API_URL: /myapp/frontend/api-url
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+
+  pre_build:
+    commands:
+      - echo "Logging into Docker Hub..."
+      - echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USERNAME --password-stdin
+
+  build:
+    commands:
+      - echo "Building frontend image..."
+
+      - docker build \
+          --build-arg VITE_API_URL=$VITE_API_URL \
+          -t $DOCKER_REGISTRY_USERNAME/frontend:latest .
+
+      - docker tag $DOCKER_REGISTRY_USERNAME/frontend:latest $DOCKER_REGISTRY_USERNAME/frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION
+
+  post_build:
+    commands:
+      - echo "Pushing frontend image..."
+
+      - docker push $DOCKER_REGISTRY_USERNAME/frontend:latest
+      - docker push $DOCKER_REGISTRY_USERNAME/frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION
+
+      - echo "Deploying to EC2 via SSM..."
+
+      - aws ssm send-command \
+          --document-name "AWS-RunShellScript" \
+          --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
+          --parameters 'commands=[
+            "cd /home/ec2-user/app",
+            "docker-compose pull",
+            "docker-compose up -d"
+          ]' \
+          --region $AWS_DEFAULT_REGION
