@@ -23,6 +23,10 @@ app.get('/',async(req,res)=>{
   return res.status(200).send({title:"Projectly-Backend",Health:"Ok"})
 })
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK' });
+});
+
 app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/users/',ensureAuth,userRoutes)
 app.use('/api/v1/workspace',ensureAuth,workspaceRoutes);
