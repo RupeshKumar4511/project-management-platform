@@ -40,7 +40,7 @@ phases:
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
           --parameters 'commands=[
-            "cd /home/ec2-user/app",
+            "cd /home/ubuntu",
             "docker-compose pull",
             "docker-compose up -d"
           ]' \
