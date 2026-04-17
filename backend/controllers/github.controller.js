@@ -9,7 +9,7 @@ export const getUserWithOauthId = async ({ provider, email }) => {
 
     const [user] = await db.select({
         id: users.id,
-        username: users.name,
+        username: users.username,
         email: users.email,
         role: users.role,
         providerAccountId: oauthAccount.providerAccountId,
@@ -50,7 +50,7 @@ export const createUserWithOauth = async ({ name, email, provider, providerAccou
         });
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        const [newUser] = await trx.insert(users).values({ name, email, password: hashedPassword, role: 'member' }).
+        const [newUser] = await trx.insert(users).values({ username:name, email, password: hashedPassword, role: 'member' }).
             $returningId;
 
         await trx.insert(oauthAccount).values({
