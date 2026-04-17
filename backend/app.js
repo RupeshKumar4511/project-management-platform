@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes.js'
 import userRoutes from './routes/user.routes.js'
 import workspaceRoutes from './routes/workspace.routes.js'
 import chatRoutes from './routes/chat.routes.js'
+import githubRoutes from './routes/github.routes.js'
 import { ensureAuth } from './middleware/ensureAuth.js';
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/v1/auth',authRoutes);
 app.use('/api/v1/users/',ensureAuth,userRoutes)
 app.use('/api/v1/workspace',ensureAuth,workspaceRoutes);
 app.use('/api/v1/chat',ensureAuth,chatRoutes)
+app.use('/api/v1/auth/github',githubRoutes)
 
 
 export default app;
