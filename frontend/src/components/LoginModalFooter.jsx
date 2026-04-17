@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import {FaGithub} from 'react-icons'
+import { FaGithub } from "react-icons/fa";
+
 const LoginModalFooter = ({ setOpen }) => {
   const handleGithubLogin = () => {
     window.location.href = `https://project-management-platform-d4jp.onrender.com/api/v1/auth/github`;
