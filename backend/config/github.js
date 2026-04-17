@@ -1,9 +1,9 @@
-import {Github} from 'arctic';
+import {GitHub} from 'arctic';
 import {config} from 'dotenv';
 config();
 
 
-const github = new Github(
+const github = new GitHub(
     process.env.GITHUB_CLIENT_ID,
     process.env.GITHUB_CLIENT_SECRET,
     `${process.env.BACKEND_URL}/github/callback`
