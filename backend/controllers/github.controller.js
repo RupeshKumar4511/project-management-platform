@@ -11,7 +11,7 @@ export const getUserWithOauthId = async ({ provider, email }) => {
         id: users.id,
         username: users.name,
         email: users.email,
-        role : users.role,
+        role: users.role,
         providerAccountId: oauthAccount.providerAccountId,
         provider: oauthAccount.provider,
 
@@ -50,16 +50,16 @@ export const createUserWithOauth = async ({ name, email, provider, providerAccou
         });
 
         const hashedPassword = await bcrypt.hash(password, 10)
-        const [user] = await trx.insert(users).values({ name, email, password: hashedPassword, role:'admin' }).
+        const [newUser] = await trx.insert(users).values({ name, email, password: hashedPassword, role: 'member' }).
             $returningId;
 
         await trx.insert(oauthAccount).values({
             provider,
             providerAccountId,
-            userId: user.id
-        })
+            userId: newUser.id
+        }).onConflictDoNothing()
 
-        return user;
+        return newUser;
 
     })
 
@@ -67,7 +67,7 @@ export const createUserWithOauth = async ({ name, email, provider, providerAccou
         username: name,
         email,
         id: user.id,
-        role: 'admin'
+        role: 'member'
     }
 }
 
