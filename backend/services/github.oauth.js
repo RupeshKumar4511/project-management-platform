@@ -1,5 +1,6 @@
 import { generateState } from 'arctic';
 import github from '../config/github.js';
+import {db} from '../config/db.js'
 import { config } from 'dotenv'
 import { createUserWithOauth, getUserWithOauthId, linkUserWithOauth } from '../controllers/github.controller.js';
 import { tokens } from '../models/user.model.js';
