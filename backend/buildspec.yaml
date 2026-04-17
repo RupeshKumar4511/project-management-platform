@@ -13,32 +13,32 @@ phases:
 
   pre_build:
     commands:
+      - set -e
       - echo "Logging into Docker Hub..."
       - echo $DOCKER_REGISTRY_PASSWORD | docker login -u $DOCKER_REGISTRY_USERNAME --password-stdin
 
   build:
     commands:
+      - set -e
       - echo "Building backend image..."
-
       - docker build -t $DOCKER_REGISTRY_USERNAME/backend:latest .
-
       - docker tag $DOCKER_REGISTRY_USERNAME/backend:latest $DOCKER_REGISTRY_USERNAME/backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
     commands:
+      - set -e
       - echo "Pushing backend image..."
-
       - docker push $DOCKER_REGISTRY_USERNAME/backend:latest
       - docker push $DOCKER_REGISTRY_USERNAME/backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
       - echo "Deploying to EC2 via SSM..."
-
       - aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
-          --parameters 'commands=[
-            "cd /home/ubuntu",
-            "docker-compose pull",
-            "docker-compose up -d"
-          ]' \
+          --parameters "commands=[
+            \"export BACKEND_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION\",
+            \"cd /home/ubuntu\",
+            \"docker-compose pull\",
+            \"docker-compose up -d\"
+          ]" \
           --region $AWS_DEFAULT_REGION
