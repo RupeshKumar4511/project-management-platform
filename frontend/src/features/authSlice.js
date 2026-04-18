@@ -167,40 +167,40 @@ const authSlice = createSlice({
         tempAuthResponse: {},
         updateUserResponse : {},
         error: {
-            signUpError: null,
-            authError: null,
-            logoutError: null,
-            sendMailError: null,
-            sendMail2Error:null,
-            verifyUserError: null,
-            resetPasswordError: null,
-            updateUserError: null
+            signUpError: "",
+            authError: "",
+            logoutError: "",
+            sendMailError: "",
+            sendMail2Error:"",
+            verifyUserError: "",
+            resetPasswordError: "",
+            updateUserError: ""
         }
 
     },
     reducers: {
         updateSendMailResponse:(state)=>{
-            state.sendEmailResponse=null;
-            state.error.sendMailError=null;
+            state.sendEmailResponse="";
+            state.error.sendMailError="";
         },
         updateSendMail2Response:(state)=>{
-            state.sendEmail2Response=null;
-            state.error.sendMail2Error=null;
+            state.sendEmail2Response="";
+            state.error.sendMail2Error="";
         },
         updateResetPasswordResponse:(state)=>{
-            state.resetPasswordResponse=null;
-            state.error.resetPasswordError=null;
+            state.resetPasswordResponse="";
+            state.error.resetPasswordError="";
         },
         updateLogoutResponse:(state)=>{
             state.error.logoutError = '';   
         },
         updateSignUpResponse: (state)=>{
             state.response = {},
-            state.error.signUpError = null
+            state.error.signUpError = ""
         },
         updateVerifyUserResponse: (state)=>{
             state.verifyUserResponse = {},
-            state.error.verifyUserError = null
+            state.error.verifyUserError = ""
         }
     },
     extraReducers: (builder => {
