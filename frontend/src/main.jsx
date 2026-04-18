@@ -42,7 +42,7 @@ const router = createBrowserRouter([
   {
     path: '/app', element: <ProtectedRoute><WorkspaceHub /></ProtectedRoute>,
     errorElement: <ErrorPage />,
-    loader: ensureAuth(),
+    loader: ensureAuth,
     shouldRevalidate: ()=>false,
     children: [
       { path: '/app', element: <ProtectedRoute><WorkspaceList /> </ProtectedRoute>},
