@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { config } from 'dotenv'
 import { createUserWithOauth, getUserWithOauthId, linkUserWithOauth } from '../controllers/github.controller.js';
 import { tokens } from '../models/user.model.js';
-import { generateAccessToken, generateRefreshToken, options } from '../controllers/auth.controller.js';
+import { generateAccessToken, generateRefreshToken } from '../controllers/auth.controller.js';
 config()
 
 export const cookieConfig = {
@@ -13,6 +13,12 @@ export const cookieConfig = {
     secure: true,
     sameSite: 'None',
     maxAge: 1000 * 60 * 60
+}
+
+const options = {
+    httpOnly:true,
+    secure: true,
+    sameSite: 'Lax'
 }
 
 export const getGithubLoginPage = async (req, res) => {
