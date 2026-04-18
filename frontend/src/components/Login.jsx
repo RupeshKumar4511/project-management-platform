@@ -6,13 +6,14 @@ import { signIn } from '../features/authSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from './LoadingSpinner';
+import { FaGithub } from 'react-icons/fa';
 
 export default function Login({ setOpen }) {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const formRef = useRef(null);
-  const { authResponse,tempAuthResponse, isLoading, error } = useSelector(store => store.auth);
+  const { authResponse, tempAuthResponse, isLoading, error } = useSelector(store => store.auth);
 
 
   const { handleSubmit, register, formState: { errors } } = useForm();
@@ -21,15 +22,18 @@ export default function Login({ setOpen }) {
   const onSubmit = (data) => {
     dispatch(signIn(data))
   }
- 
-  useEffect(()=>{
-      if (authResponse.success === true) {
+
+  useEffect(() => {
+    if (authResponse.success === true) {
       navigate("/app");
     }
-    },[authResponse,navigate])
+  }, [authResponse, navigate])
 
-  
 
+
+  const handleGithubLogin = () => {
+    window.location.href = `https://project-management-platform-d4jp.onrender.com/api/v1/auth/github`;
+  };
 
 
   return (
@@ -37,8 +41,8 @@ export default function Login({ setOpen }) {
       <LoginModalHeader />
       <form method="POST" className="vh-100" ref={formRef} onSubmit={handleSubmit(onSubmit)}>
         <div className="my-4 border-y border-gray-300 px-6 py-6 flex flex-col gap-5 bg-white ">
-          <p className={`text-red-500 ${tempAuthResponse.success?'hidden':''}`}>{!tempAuthResponse.success?tempAuthResponse.message:''}</p>
-          <p className={`text-red-500 ${error.authError?'':'hidden'}`}>{error.authError?error.authError:''}</p>
+          <p className={`text-red-500 ${tempAuthResponse.success ? 'hidden' : ''}`}>{!tempAuthResponse.success ? tempAuthResponse.message : ''}</p>
+          <p className={`text-red-500 ${error.authError ? '' : 'hidden'}`}>{error.authError ? error.authError : ''}</p>
           <div className="flex flex-col gap-2 relative">
             <label htmlFor="username" className="text-sm font-medium text-gray-700">
               Username
@@ -77,8 +81,19 @@ export default function Login({ setOpen }) {
           </div>
         </div>
         <LoginModalFooter setOpen={setOpen} />
-        {isLoading&& <LoadingSpinner/>}
+        {isLoading && <LoadingSpinner />}
       </form>
+      <div className='w-full flex justify-center items-center mt-2'>
+        {/* GitHub Login Button */}
+      <button
+        onClick={handleGithubLogin}
+        className="flex items-center justify-center gap-2 rounded-md bg-gray-700 text-white px-3 py-2 font-semibold hover:bg-gray-400 cursor-pointer"
+      >
+        {/* Optional GitHub icon */}
+        <FaGithub size={22}  />
+              <span>Login with Github </span>
+      </button>
+      </div>
     </>
   )
 }

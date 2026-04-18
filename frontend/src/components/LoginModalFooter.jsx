@@ -1,23 +1,11 @@
 import { Link } from "react-router-dom";
-import { FaGithub } from "react-icons/fa";
 
 const LoginModalFooter = ({ setOpen }) => {
-  const handleGithubLogin = () => {
-    window.location.href = `https://project-management-platform-d4jp.onrender.com/api/v1/auth/github`;
-  };
 
   return (
     <div className="flex flex-col gap-3 px-2">
 
-      {/* GitHub Login Button */}
-      <button
-        onClick={handleGithubLogin}
-        className="flex items-center justify-center gap-2 rounded-md bg-black text-white px-3 py-2 font-semibold hover:bg-gray-900 active:bg-gray-800 cursor-pointer"
-      >
-        {/* Optional GitHub icon */}
-         <FaGithub size={22} title="Login with Github" />
-       
-      </button>
+      
 
       {/* Existing footer */}
       <div className="flex justify-end gap-5">

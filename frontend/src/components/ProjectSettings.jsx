@@ -197,7 +197,7 @@ export default function ProjectSettings({ project }) {
                     <div className="space-y-2">
                         <label className={labelClasses}>Project Link</label>
                         <input
-                            {...register("projectLink", { required: true })}
+                            {...register("projectLink")}
                             className={inputClasses}
                         />
                     </div>
@@ -206,7 +206,7 @@ export default function ProjectSettings({ project }) {
                     <div className="space-y-2">
                         <label className={labelClasses}>Description</label>
                         <textarea
-                            {...register("description")}
+                            {...register("description", { required: true })}
                             className={inputClasses + " h-24"}
                         />
                     </div>
@@ -215,7 +215,7 @@ export default function ProjectSettings({ project }) {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className={labelClasses}>Status</label>
-                            <select {...register("status")} className={inputClasses}>
+                            <select {...register("status", { required: true })} className={inputClasses}>
                                 <option value="PLANNING">Planning</option>
                                 <option value="ACTIVE">Active</option>
                                 <option value="ON_HOLD">On Hold</option>
@@ -226,7 +226,7 @@ export default function ProjectSettings({ project }) {
 
                         <div className="space-y-2">
                             <label className={labelClasses}>Priority</label>
-                            <select {...register("priority")} className={inputClasses}>
+                            <select {...register("priority", { required: true })} className={inputClasses}>
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
                                 <option value="HIGH">High</option>

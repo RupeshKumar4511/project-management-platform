@@ -273,7 +273,7 @@ const ProjectTasks = ({ tasks,setShowCreateTask,setUpdatedTask }) => {
                                 const { background, prioritycolor } = priorityTexts[task.priority] || {};
 
                                 return (
-                                    <div key={task.id} className=" dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4 flex flex-col gap-2">
+                                    <div key={task.id} onClick={() => navigate(`/app/workspace/taskDetails?projectId=${task.projectId}&taskId=${task.id}`)} className=" dark:bg-linear-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-4 flex flex-col gap-2">
                                         <div className="flex items-center justify-between">
                                             <h3 className="text-zinc-900 dark:text-zinc-200 text-sm font-semibold">{task.title}</h3>
                                             <input type="checkbox" className="size-4 accent-zinc-600 dark:accent-zinc-500" onChange={() => selectedTasks.includes(task.id) ? setSelectedTasks(selectedTasks.filter((i) => i !== task.id)) : setSelectedTasks((prev) => [...prev, task.id])} checked={selectedTasks.includes(task.id)} />
@@ -301,7 +301,7 @@ const ProjectTasks = ({ tasks,setShowCreateTask,setUpdatedTask }) => {
 
                                         <div className="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                                             <CgProfile className="size-5 rounded-full" alt="avatar" />
-                                            {task.assignee?.name || "-"}
+                                            {getUserNameById(task?.assigneeId) || "-"}
                                         </div>
 
                                         <div className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">

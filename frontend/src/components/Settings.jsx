@@ -101,7 +101,7 @@ export default function Settings() {
                         <label className={labelClasses}>Workspace Name : </label>
                         <input
                             {...register("name", {
-                                required: "workspaceName is required",
+                                required:true,
                                 maxLength: {
                                     value: 20, message: "Length of workspaceName cannot exceeds 20 characters."
                                 }
@@ -116,6 +116,7 @@ export default function Settings() {
                         <textarea
                             rows={3}
                             {...register("description", {
+                                required:true,
                                 maxLength: {
                                     value: 255, message: "Length of description cannot exceeds 255 characters."
                                 }

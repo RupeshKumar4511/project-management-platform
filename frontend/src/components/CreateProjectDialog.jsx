@@ -128,7 +128,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     <div>
                         <label className="block text-sm mb-1">Description</label>
                         <textarea
-                            {...register("description")}
+                            {...register("description", { required: true })}
                             placeholder="Describe your project"
                             className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm h-20"
                         />
@@ -139,7 +139,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
                         <div>
                             <label className="block text-sm mb-1">Status</label>
-                            <select {...register("status")}
+                            <select {...register("status", { required: true })}
                                 className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm">
                                 <option value="PLANNING">Planning</option>
                                 <option value="ACTIVE">Active</option>
@@ -151,7 +151,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
                         <div>
                             <label className="block text-sm mb-1">Priority</label>
-                            <select {...register("priority")}
+                            <select {...register("priority", { required: true })}
                                 className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm">
                                 <option value="LOW">Low</option>
                                 <option value="MEDIUM">Medium</option>
@@ -168,7 +168,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             <label className="block text-sm mb-1">Start Date</label>
                             <input
                                 type="date"
-                                {...register("startDate")}
+                                {...register("startDate", { required: true })}
                                 className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                             />
                         </div>
@@ -177,7 +177,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                             <label className="block text-sm mb-1">End Date</label>
                             <input
                                 type="date"
-                                {...register("endDate")}
+                                {...register("endDate", { required: true })}
                                 min={startDate}
                                 className="w-full px-3 py-2 rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-sm"
                             />
@@ -189,7 +189,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     <div>
                         <label className="block text-sm mb-1">Project Lead</label>
                         <select
-                            {...register("projectLead")}
+                            {...register("projectLead", { required: true })}
                             onChange={(e) => {
                                 const email = e.target.value;
                                 setValue("projectLead", email);

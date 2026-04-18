@@ -132,7 +132,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                     <div className="space-y-1">
                         <label className="text-sm font-medium">Description</label>
                         <textarea
-                            {...register("description")}
+                            {...register("description", { required: true })}
                             placeholder="Describe the task"
                             className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1 h-24 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
@@ -144,7 +144,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Type</label>
                             <select
-                                {...register("type")}
+                                {...register("type", { required: true })}
                                 className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"
                             >
                                 <option value="BUG">Bug</option>
@@ -158,7 +158,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Priority</label>
                             <select
-                                {...register("priority")}
+                                {...register("priority", { required: true })}
                                 className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"
                             >
                                 <option value="LOW">Low</option>
@@ -175,7 +175,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Assignee</label>
                             <select
-                                {...register("assigneeId")}
+                                {...register("assigneeId", { required: true })}
                                 className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"
                             >
                                 <option value="">Unassigned</option>
@@ -190,7 +190,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         <div className="space-y-1">
                             <label className="text-sm font-medium">Status</label>
                             <select
-                                {...register("status")}
+                                {...register("status", { required: true })}
                                 className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"
                             >
                                 <option value="TODO">To Do</option>
@@ -211,7 +211,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
                             <input
                                 type="date"
-                                {...register("dueDate")}
+                                {...register("dueDate", { required: true })}
                                 min={new Date().toISOString().split("T")[0]}
                                 className="w-full rounded dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-200 text-sm mt-1"
                             />

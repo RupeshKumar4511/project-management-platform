@@ -207,14 +207,13 @@ const Team = () => {
                                     className="p-4 border border-gray-200 dark:border-zinc-800 rounded-md bg-white dark:bg-zinc-900"
                                 >
                                     <div className="flex items-center gap-3 mb-2">
-                                        <img
-                                            src={user.user.image}
-                                            alt={user.user.name}
-                                            className="size-9 rounded-full bg-gray-200 dark:bg-zinc-800"
-                                        />
+                                        <CgProfile
+                                                    alt={user.user.name}
+                                                    className="size-7 rounded-full bg-gray-200 dark:bg-zinc-800"
+                                                />
                                         <div>
                                             <p className="font-medium text-gray-900 dark:text-white">
-                                                {user.user?.name || "Unknown User"}
+                                                {user.user?.username || "Unknown User"}
                                             </p>
                                             <p className="text-sm text-gray-500 dark:text-zinc-400">
                                                 {user.user.email}
@@ -228,7 +227,7 @@ const Team = () => {
                                                 : "bg-gray-200 dark:bg-zinc-700 text-gray-700 dark:text-zinc-300"
                                                 }`}
                                         >
-                                            {user.role || "User"}
+                                            {user.role.split(":")[1].toUpperCase() || "User"}
                                         </span>
                                     </div>
                                 </div>

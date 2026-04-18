@@ -110,7 +110,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                         </label>
 
                         <select
-                            {...register("role")}
+                            {...register("role", { required: true })}
                             className="w-full rounded border border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-200 py-2 px-3 mt-1 focus:outline-none focus:border-blue-500 text-sm"
                         >
                             <option value="org:member">Member</option>
