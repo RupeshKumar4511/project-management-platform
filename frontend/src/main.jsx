@@ -24,6 +24,7 @@ import Profile from './components/Profile.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import Settings from './components/Settings.jsx'
 import Chatbot from './components/ChatBot.jsx'
+import ensureAuth from './features/ensureAuth.js'
 
 const router = createBrowserRouter([
 
@@ -41,6 +42,8 @@ const router = createBrowserRouter([
   {
     path: '/app', element: <ProtectedRoute><WorkspaceHub /></ProtectedRoute>,
     errorElement: <ErrorPage />,
+    loader: ensureAuth(),
+    shouldRevalidate: ()=>false,
     children: [
       { path: '/app', element: <ProtectedRoute><WorkspaceList /> </ProtectedRoute>},
       { path: '/app/create-workspace', element: <ProtectedRoute> < CreateWorkspaceForm /> </ProtectedRoute> },
