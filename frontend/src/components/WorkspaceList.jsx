@@ -3,13 +3,11 @@ import { useForm } from "react-hook-form";
 import { useJoinWorkspaceMutation } from "../features/workspaceSlice";
 import { useNavigate } from "react-router-dom";
 import LoadingSpinner from "./LoadingSpinner";
-import ErrorPage from "./ErrorPage";
-
 
 export default function WorkspaceList() {
   const formRef = useRef(null);
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const [joinWorkspace, { isLoading, isSuccess, error }] = useJoinWorkspaceMutation();
 
   const onSubmit = (data) => {
@@ -17,53 +15,65 @@ export default function WorkspaceList() {
   };
 
   if (isSuccess) {
-    setTimeout(() => {
-      navigate('/app/workspace');
-    }, 1)
+    // Navigating immediately after success
+    navigate('/app/workspace');
   }
 
   return (
-    <div className="w-[50%] space-y-8 relative -top-20">
-      {/* Join Workspace Form */}
-      <div className="rounded-3xl bg-white shadow-lg p-8">
-        <h3 className="text-xl font-semibold text-gray-800 mb-6">
+  
+    <div className="w-full max-w-xl mx-auto px-4 py-6 md:py-12">
+      
+      <div className="rounded-2xl md:rounded-3xl bg-white shadow-lg p-6 md:p-10 border border-gray-100">
+        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-6 text-center md:text-left">
           Join Your Organization Workspace
         </h3>
         
         <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} ref={formRef}>
+          
+          {/* Error Message */}
+          {error?.data && (
+            <p className="text-red-500 text-sm bg-red-50 p-3 rounded-lg border border-red-100">
+              {error.data.message}
+            </p>
+          )}
 
-           <p className={`text-red-500 ${error?.data ? '' : 'hidden'}`}>{error?.data ? error?.data?.message : ''}</p>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">
+            <label className="block text-sm font-semibold text-gray-600 mb-1.5">
               Organization/Workspace Name
             </label>
             <input
               type="text"
-              name="workspaceName"
               placeholder="e.g. Acme Corp"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all placeholder:text-gray-400"
               {...register("workspaceName", {
-                required: "workspaceName is required",
+                required: "Workspace name is required",
                 maxLength: {
-                  value: 20, message: "Length of workspaceName should not exceeds 20 characters."
+                  value: 20, message: "Name should not exceed 20 characters."
                 }
               })}
             />
-            <span className="text-red-500 md:text-sm text-[12px] ">{errors.workspaceName?.message}</span>
+            {errors.workspaceName && (
+              <span className="text-red-500 text-xs mt-1 block">{errors.workspaceName?.message}</span>
+            )}
           </div>
 
-          {isLoading && <LoadingSpinner />}
-          
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-indigo-600 py-3 text-white font-medium hover:bg-indigo-700 transition"
-          >
-            Join Workspace
-          </button>
+          <div className="relative">
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-xl">
+                <LoadingSpinner />
+              </div>
+            )}
+            
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full rounded-xl bg-indigo-600 py-3 md:py-3.5 text-white font-semibold hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:bg-indigo-400 shadow-md shadow-indigo-100"
+            >
+              {isLoading ? "Joining..." : "Join Workspace"}
+            </button>
+          </div>
         </form>
       </div>
-
-
     </div>
   );
 }
