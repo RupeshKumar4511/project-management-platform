@@ -1,4 +1,4 @@
-import { and, eq, inArray, or, sql } from 'drizzle-orm';
+import { and, eq, getOrderByOperators, inArray, or, sql } from 'drizzle-orm';
 import client from '../config/client.js'
 import { db } from '../config/db.js'
 import bcrypt from 'bcrypt'
@@ -7,6 +7,7 @@ import { uniqueUsernameGenerator, adjectives, nouns } from 'unique-username-gene
 import { users } from '../models/user.model.js';
 import { workspaces, workspaceUsers, projects, tasks, projectMembers, comments } from '../models/workspace.model.js'
 import { sendMemberInvitation, sendTaskInvitation } from '../services/mail.js';
+import { orders } from '../models/order.model.js';
 
 export const createWorkspace = async (req, res) => {
     const { workspaceName, description } = req.body;
@@ -28,6 +29,12 @@ export const createWorkspace = async (req, res) => {
 
         if (workspaceOwner) {
             return res.status(400).send({ success: false, message: "You have already created a workspace" })
+        }
+
+        const [order] = await db.select({id:orders.id}).from(orders).where(eq(orders.userId,req.user.id));
+
+        if(!order){
+            return res.status(400).send({success:false,message: "Purchase a plan to create workspace"})
         }
 
         await db.transaction(async (tx) => {
