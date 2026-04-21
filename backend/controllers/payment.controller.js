@@ -1,10 +1,9 @@
+import 'dotenv/config';
 import Razorpay from 'razorpay';
 import crypto from 'crypto'
 import {db} from '../config/db.js'
-import { config } from 'dotenv'
 import {orders} from '../models/order.model.js';
 import { eq } from 'drizzle-orm';
-config()
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_API_KEY_ID,
