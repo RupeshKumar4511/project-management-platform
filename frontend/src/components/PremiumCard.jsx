@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import image from '../assets/workspace_img_default.png'
-import { Check, Zap } from 'lucide-react';
+import { Check, Zap, IndianRupee } from 'lucide-react';
 
 const PremiumCard = () => {
 
@@ -39,7 +39,7 @@ const PremiumCard = () => {
                 "color": "#3399cc"
             }
         };
-        
+
         const rzp1 = new window.Razorpay(options);
 
         rzp1.open()
@@ -52,7 +52,7 @@ const PremiumCard = () => {
         "Task and Progress Analytics",
         "Task's Query Discussion",
         "AI Assistant"
-        
+
     ];
 
     return (
@@ -67,7 +67,7 @@ const PremiumCard = () => {
                 <div className="mb-8 text-center">
                     <h3 className="text-lg font-semibold text-gray-500 uppercase tracking-wide">Premium</h3>
                     <div className="mt-4 flex items-baseline justify-center gap-1">
-                        <span className="text-5xl font-black tracking-tight text-gray-900">$100</span>
+                        <span className="text-5xl font-black tracking-tight text-gray-900"><IndianRupee size={20} />100</span>
                         <span className="text-gray-400 font-medium">/month</span>
                     </div>
                     <p className="mt-3 text-gray-600 text-sm italic">
@@ -88,11 +88,11 @@ const PremiumCard = () => {
                 </ul>
 
                 {/* CTA Button with active states */}
-                <button className="w-full py-4 px-6 flex items-center justify-center gap-3 bg-gray-900 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all duration-200 active:scale-95 shadow-xl" onClick={()=>checkoutHandler({amount:100})}>
+                <button className="w-full py-4 px-6 flex items-center justify-center gap-3 bg-gray-900 hover:bg-indigo-700 text-white font-bold rounded-2xl transition-all duration-200 active:scale-95 shadow-xl" onClick={() => checkoutHandler({ amount: 100 })}>
                     <Zap size={20} className="fill-current text-yellow-400" />
                     <span>Purchase Plan</span>
                 </button>
-                
+
             </div>
         </div>
     );
