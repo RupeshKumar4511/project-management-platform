@@ -3,7 +3,7 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto'
 import {db} from '../config/db.js'
 import {orders} from '../models/order.model.js';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNotNull } from 'drizzle-orm';
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_API_KEY_ID,
@@ -30,7 +30,7 @@ export const checkout = async (req, res) => {
 
             console.log(`Order created for amount ${amount} with orderId: ${order.id}.`)
 
-            return res.status(200).send({ order, message: `Amount ${amount} received.` })
+            return res.status(200).send({ order, message: `Order created for amount ${amount} with orderId: ${order.id}.` })
         }else{
             return res.status(400).send({success:true, message:"Invalid Amount for plan"})
         }
@@ -75,7 +75,7 @@ export const paymentVerification = async (req, res) => {
 
 export const getUserPlanDetails = async(req,res)=>{
     try {
-        const [userPlan] = await db.select({id:orders.id}).from(orders).where(eq(orders.userId,req.user.id)) ;
+        const [userPlan] = await db.select({id:orders.id}).from(orders).where(and(eq(orders.userId,req.user.id),isNotNull(orders.razorpay_payment_id))) ;
         
         if(userPlan){
             return res.status(200).send({payment:false,message:"No premium"})
