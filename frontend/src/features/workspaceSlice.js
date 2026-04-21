@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({ 
-    baseUrl: `${import.meta.env.BACKEND_URL}/api/v1/workspace`,
+    baseUrl: `${import.meta.env.VITE_BACKEND_URL}/api/v1/workspace`,
     // Global credentials setting so you don't have to repeat it in every endpoint
     prepareHeaders: (headers) => {
         return headers;
@@ -20,7 +20,7 @@ const baseQueryWithReauth = async (args, api, extraOptions) => {
         // 3. Attempt to get a new token (using a dedicated refresh endpoint)
         // Adjust the URL to your actual refresh endpoint
         const refreshResult = await baseQuery({ 
-            url: `${import.meta.env.BACKEND_URL}/api/v1/auth/refresh`, 
+            url: `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/refresh`, 
             method: 'POST',
             credentials: "include" 
         }, api, extraOptions);

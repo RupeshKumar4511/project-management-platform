@@ -7,7 +7,7 @@ const Chatbot = () => {
   const textareaRef = useRef(null);
 
   const getQueryResponse = async(query)=>{
-    const response = await fetch(`${import.meta.env.BACKEND_URL}/api/v1/chat`,{
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`,{
       method:"POST",
       headers: { "Content-Type": 'application/json' },
       credentials:'include',

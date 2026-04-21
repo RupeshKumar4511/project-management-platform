@@ -4,7 +4,7 @@ import { redirect } from 'react-router-dom';
 const PaymentFail = () => {
 
   const onTryAgain = ()=>{
-    redirect(`${import.meta.env.FRONTEND_URL}/app/payment`)
+    redirect(`${import.meta.env.VITE_FRONTEND_URL}/app/payment`)
   }
   return (
     <div className="w-screen min-h-screen flex items-center justify-center bg-zinc-950 p-4">

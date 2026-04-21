@@ -20,7 +20,7 @@ export default function AppSideBar({ open, setOpen }) {
 
     const fetchUserPlan = async () => {
         try {
-            const response = await fetch(`${import.meta.env.BACKEND_URL}/api/v1/payment/details`);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/details`);
             const result = await response.json();
 
             if (result.payment) {

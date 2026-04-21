@@ -7,7 +7,7 @@ const PremiumCard = () => {
     const { authResponse } = useSelector((store) => store.auth);
 
     const checkoutHandler = async ({ amount }) => {
-        const response = await fetch('http://localhost:8088/api/v1/payment/checkout', {
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/checkout`, {
             method: "POST",
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
@@ -19,14 +19,14 @@ const PremiumCard = () => {
         console.log(order)
 
         const options = {
-            "key": import.meta.env.RAZORPAY_API_KEY_ID,
+            "key": import.meta.env.VITE_RAZORPAY_API_KEY_ID,
             "amount": order.amount,
             "currency": "INR",
             "name": "Payment razorpay",
             "description": "Test Transaction",
             "image": image,
             "order_id": order.id,
-            callback_url: `${import.meta.env.BACKEND_URL}/api/v1/payment/verification`,
+            callback_url: `${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/verification`,
             "prefill": {
                 "name": authResponse.username,
                 "email": authResponse.email,
