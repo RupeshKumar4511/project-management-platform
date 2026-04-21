@@ -6,6 +6,6 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    allowedHosts: [import.meta.env.VITE_FRONTEND_DOMAIN_NAME],
+    allowedHosts: ['projectly-kj9b.onrender.com'],
   },
 })
