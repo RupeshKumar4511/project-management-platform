@@ -7,12 +7,15 @@ import userRoutes from './routes/user.routes.js'
 import workspaceRoutes from './routes/workspace.routes.js'
 import chatRoutes from './routes/chat.routes.js'
 import githubRoutes from './routes/github.routes.js'
+import paymentRoutes from './routes/payment.routes.js'
 import { ensureAuth } from './middleware/ensureAuth.js';
+import {config} from 'dotenv'
+config()
 
 const app = express();
 
 app.use(cors({
-    origin:'https://projectly-kj9b.onrender.com',
+    origin: process.env.FRONTEND_URL,
     credentials:true
 }));
 
@@ -29,7 +32,8 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/v1/auth',authRoutes);
-app.use('/api/v1/users/',ensureAuth,userRoutes)
+app.use('/api/v1/users',ensureAuth,userRoutes)
+app.use('/api/v1/payment',ensureAuth,paymentRoutes)
 app.use('/api/v1/workspace',ensureAuth,workspaceRoutes);
 app.use('/api/v1/chat',ensureAuth,chatRoutes)
 app.use('/api/v1/auth/github',githubRoutes)
