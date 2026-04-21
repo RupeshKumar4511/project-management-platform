@@ -5,7 +5,7 @@ config();
 
 
 const client = new OpenAI({
-    apiKey: process.env.API_KEY,
+    apiKey: process.env.OPENAI_API_KEY,
     baseURL: "https://api.chatanywhere.tech/v1"
 });
 
