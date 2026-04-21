@@ -2,3 +2,4 @@
 /CONTRIBUTING.md
 /LICENSE.md
 node_modules
+.env
