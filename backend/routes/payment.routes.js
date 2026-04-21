@@ -6,7 +6,7 @@ import { schemaValidation } from '../middleware/schema.validation.js';
 
 const router = Router();
 
-router.route('/').post(checkSchema(checkoutSchema),schemaValidation,checkout);
+router.route('/checkout').post(checkSchema(checkoutSchema),schemaValidation,checkout);
 router.route('/verification').post(checkSchema(paymentVerificationSchema),schemaValidation,paymentVerification)
 router.route('/details').get(getUserPlanDetails)
 
