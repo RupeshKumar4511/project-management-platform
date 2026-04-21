@@ -25,6 +25,9 @@ import ProtectedRoute from './ProtectedRoute.jsx'
 import Settings from './components/Settings.jsx'
 import Chatbot from './components/ChatBot.jsx'
 import ensureAuth from './features/ensureAuth.js'
+import PremiumCard from './components/PremiumCard.jsx'
+import PaymentFail from './components/PaymentFail.jsx'
+import PaymentSuccess from './components/PaymentSuccess.jsx'
 
 const router = createBrowserRouter([
 
@@ -43,23 +46,27 @@ const router = createBrowserRouter([
     path: '/app', element: <ProtectedRoute><WorkspaceHub /></ProtectedRoute>,
     errorElement: <ErrorPage />,
     loader: ensureAuth,
+    shouldRevalidate: () =>false,
     children: [
-      { path: '/app', element: <ProtectedRoute><WorkspaceList /> </ProtectedRoute>},
-      { path: '/app/create-workspace', element: <ProtectedRoute> < CreateWorkspaceForm /> </ProtectedRoute> },
-      { path: '/app/profile', element: <ProtectedRoute> <Profile /></ProtectedRoute> },
+      { path: '/app', element: <WorkspaceList /> },
+      { path: '/app/payment', element:  < PremiumCard />  },
+      { path: '/app/payment/success', element:  < PaymentSuccess />  },
+      { path: '/app/payment/failure', element:  < PaymentFail />  },
+      { path: '/app/create-workspace', element:  < CreateWorkspaceForm />  },
+      { path: '/app/profile', element:  <Profile /> },
     ]
   },
   {
     path: '/app/workspace', element: <ProtectedRoute> <App/></ProtectedRoute>,
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <ProtectedRoute> <Dashboard /></ProtectedRoute> },
-      { path: '/app/workspace/team', element: <ProtectedRoute> <Team /></ProtectedRoute> },
-      { path: '/app/workspace/projects', element: <ProtectedRoute> <Projects /></ProtectedRoute> },
-      { path: '/app/workspace/settings', element: <ProtectedRoute> <Settings /></ProtectedRoute> },
-      { path: '/app/workspace/projectsDetail', element: <ProtectedRoute> <ProjectDetails /></ProtectedRoute> },
-      { path: '/app/workspace/taskDetails', element: <ProtectedRoute> <TaskDetails /></ProtectedRoute> },
-      { path: '/app/workspace/chatbot', element: <ProtectedRoute> <Chatbot /></ProtectedRoute> },
+      { index: true, element:  <Dashboard /> },
+      { path: '/app/workspace/team', element:  <Team /> },
+      { path: '/app/workspace/projects', element:  <Projects /> },
+      { path: '/app/workspace/settings', element:  <Settings /> },
+      { path: '/app/workspace/projectsDetail', element:  <ProjectDetails /> },
+      { path: '/app/workspace/taskDetails', element:  <TaskDetails /> },
+      { path: '/app/workspace/chatbot', element:  <Chatbot /> },
     ]
   },
   
