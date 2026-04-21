@@ -6,6 +6,6 @@ export default defineConfig({
     schema:'./models/*.js', 
     dialect:"postgresql", 
     dbCredentials:{
-        url:process.env.PostgreSQL_URI   // store URL in .env file
+        url:process.env.PostgreSQL_URI  
     }
 }) 
