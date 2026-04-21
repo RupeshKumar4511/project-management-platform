@@ -2,7 +2,7 @@ import { redirect } from "react-router-dom";
 
 const generateNewRefreshToken = async () => {
   try {
-    const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth/refresh', {
+    const response = await fetch(`${import.meta.env.BACKEND_URL}/api/v1/auth/refresh`, {
       method: "POST",
       headers: { "Content-Type": 'application/json' },
       credentials: 'include'
@@ -18,7 +18,7 @@ const ensureAuth = async () => {
   const customMsg = { message: "Logout Successfully", logout: true };
 
   try {
-    const response = await fetch('https://project-management-platform-d4jp.onrender.com/api/v1/auth', {
+    const response = await fetch(`${import.meta.env.BACKEND_URL}/api/v1/auth`, {
       method: 'GET',
       credentials: 'include',
     });
