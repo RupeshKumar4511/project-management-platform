@@ -2,6 +2,8 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto'
 import {db} from '../config/db.js'
 import { config } from 'dotenv'
+import {orders} from '../models/order.model.js';
+import { eq } from 'drizzle-orm';
 config()
 
 const razorpay = new Razorpay({
@@ -53,7 +55,9 @@ export const paymentVerification = async (req, res) => {
 
         if(isValid){
             console.log("payment is successful.");
-            await db.update(orders).set({razorpay_payment_id, razorpay_order_id, razorpay_signature})
+            
+            await db.update(orders).set({razorpay_payment_id, razorpay_order_id, razorpay_signature}).where(eq(orders.userId, req.user.id))
+
 
             res.redirect(`${process.env.FRONTEND_URL}/app/payment/success?payment_id ${razorpay_payment_id}`)
 
@@ -68,4 +72,19 @@ export const paymentVerification = async (req, res) => {
     }
 
 
+}
+
+export const getUserPlanDetails = async(req,res)=>{
+    try {
+        const [userPlan] = await db.select({id:orders.id}).from(orders).where(eq(orders.userId,req.user.id)) ;
+        
+        if(userPlan){
+            return res.status(200).send({payment:false,message:"No premium"})
+        }else{
+            return res.status(200).send({payment:true,message : "1 premium plan"})
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({success:false,message:"Internal Server Error"})
+    }
 }
