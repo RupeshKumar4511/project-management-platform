@@ -1,8 +1,8 @@
 import {Router} from 'express';
-import { checkout, paymentVerification } from '../controllers/payment.controller';
+import { checkout, paymentVerification } from '../controllers/payment.controller.js';
 import {checkSchema} from 'express-validator'
-import { checkoutSchema, paymentVerificationSchema } from '../utils/payment.validationSchema';
-import { schemaValidation } from '../middleware/schema.validation';
+import { checkoutSchema, paymentVerificationSchema } from '../utils/payment.validationSchema.js';
+import { schemaValidation } from '../middleware/schema.validation.js';
 
 const router = Router();
 
