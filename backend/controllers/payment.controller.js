@@ -4,6 +4,7 @@ import crypto from 'crypto'
 import {db} from '../config/db.js'
 import {orders} from '../models/order.model.js';
 import { and, eq, isNotNull } from 'drizzle-orm';
+import { workspaces } from '../models/workspace.model.js';
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_API_KEY_ID,
@@ -76,11 +77,15 @@ export const paymentVerification = async (req, res) => {
 export const getUserPlanDetails = async(req,res)=>{
     try {
         const [userPlan] = await db.select({id:orders.id}).from(orders).where(and(eq(orders.userId,req.user.id),isNotNull(orders.razorpay_payment_id))) ;
+
+        const [workspace] = await db.select({ id:workspaces.id}).from(workspaces).where(eq(workspaces.ownerId,req.user.id))
         
-        if(userPlan){
-            return res.status(200).send({payment:false,message:"No premium"})
+        if(userPlan && !workspace){
+             return res.status(200).send({payment:true,message : "1 premium plan"})
+        }else if (userPlan && workspace){
+            return res.status(200).send({payment:false,message : "Premium Used "})
         }else{
-            return res.status(200).send({payment:true,message : "1 premium plan"})
+            return res.status(200).send({payment:false,message : "No Premium "})
         }
     } catch (error) {
         console.log(error);

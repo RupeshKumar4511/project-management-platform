@@ -166,15 +166,15 @@ export const logOut = async (req, res) => {
         }
 
         if (refreshToken && dbToken.refreshToken !== refreshToken) {
-            res.clearCookie("accessToken")
-            res.clearCookie("refreshToken")
+            res.clearCookie("accessToken",options)
+            res.clearCookie("refreshToken",options)
             return res.status(403).send({success:false, message: "your refresh token is expired or used",code:"SIGNED_OUT" })
         }
 
         await db.delete(tokens).where(eq(tokens.userId, decodedData.id));
 
-        res.clearCookie("accessToken")
-        res.clearCookie("refreshToken")
+        res.clearCookie("accessToken",options)
+        res.clearCookie("refreshToken",options)
 
         return res.status(200).send({ logout: true, message: "Logout Successfully." })
 
