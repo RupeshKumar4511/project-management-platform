@@ -19,27 +19,33 @@ export default function AppSideBar({ open, setOpen }) {
 
     }
 
-    const fetchUserPlan = async () => {
-        try {
-            await ensureAuth();
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/details`,{
-                credentials:'include',
-                headers:{'Content-Type':'application/json'}
-            });
-            const result = await response.json();
-
-            if (result.payment) {
-                setURL('create-workspace');
-            }
-        } catch (error) {
-            console.log(error)
-        }
-
-    }
-
     useEffect(() => {
-        fetchUserPlan()
-    },[])
+        const fetchUserPlan = async () => {
+            try {
+                await ensureAuth();
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/details`, {
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+        
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.payment) {
+                    setURL('create-workspace');
+                }
+            } catch (error) {
+                
+                console.error("Fetch failed:", error);
+            }
+        };
+
+        fetchUserPlan();
+    }, []);
 
     useEffect(() => {
         if (authResponse.logout) {

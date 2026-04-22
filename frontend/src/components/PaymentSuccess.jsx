@@ -1,18 +1,18 @@
 import { Check } from 'lucide-react';
-import { redirect, useLocation } from 'react-router-dom';
+import {  useLocation, useNavigate } from 'react-router-dom';
 
 const PaymentSuccess = () => {
 
   const query = new URLSearchParams(useLocation().search);
   const payment_id = query.get("payment_id");
 
-  const onReturn = () => {
-    return redirect(`${import.meta.env.VITE_FRONTEND_URL}/app/create-workspace`)
-
+ const navigate = useNavigate()
+  const onReturn = ()=>{
+     navigate(`/app/create-workspace`)
   }
   return (
-    <div className="w-screen min-h-screen flex items-center justify-center bg-zinc-950 p-4">
-      <div className="flex w-full max-w-md bg-zinc-900 rounded-2xl border border-zinc-800 drop-shadow-2xl items-center justify-center overflow-hidden">
+    <div className="w-screen min-h-screen flex items-center justify-center  p-4">
+      <div className="flex w-full max-w-md bg-zinc-300 rounded-2xl border border-zinc-200 drop-shadow-2xl items-center justify-center overflow-hidden">
         <div className="flex flex-col items-center justify-start p-10 space-y-6 w-full">
 
           {/* Animated Background Decoration */}
