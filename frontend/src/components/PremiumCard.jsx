@@ -14,7 +14,7 @@ const PremiumCard = () => {
             body: JSON.stringify({ amount })
         })
 
-        const order = await response.json();
+        const {order} = await response.json();
 
         console.log(order)
 
