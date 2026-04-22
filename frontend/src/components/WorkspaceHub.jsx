@@ -2,14 +2,11 @@ import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 import AppSideBar from './AppSideBar.jsx';
 import { Outlet } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import {  useState } from 'react';
 
 export default function WorkspaceHub() {
   const [ open, setOpen ] = useState(false);
 
-  useEffect(()=>{
-    window.location.reload()
-  },[])
 
   return (
     <>
