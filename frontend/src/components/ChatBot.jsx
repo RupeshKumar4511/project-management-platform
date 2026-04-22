@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ensureAuth from '../features/ensureAuth';
 
 const Chatbot = () => {
   const [query, setQuery] = useState("");
@@ -7,6 +8,7 @@ const Chatbot = () => {
   const textareaRef = useRef(null);
 
   const getQueryResponse = async(query)=>{
+    await ensureAuth();
     const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`,{
       method:"POST",
       headers: { "Content-Type": 'application/json' },

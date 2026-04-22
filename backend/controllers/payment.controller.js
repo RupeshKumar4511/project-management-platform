@@ -58,11 +58,11 @@ export const paymentVerification = async (req, res) => {
             await db.update(orders).set({razorpay_payment_id, razorpay_order_id, razorpay_signature}).where(eq(orders.userId, req.user.id))
 
 
-            res.redirect(`${process.env.FRONTEND_URL}/app/payment/success?payment_id ${razorpay_payment_id}`)
+            res.redirect(`${process.env.FRONTEND_URL}/app/payment/success?payment_id=${razorpay_payment_id}`)
 
             return;
         } else{
-            res.redirect(`${process.env.FRONTEND_URL}/app/payment/failure?payment_id ${razorpay_payment_id}`);
+            res.redirect(`${process.env.FRONTEND_URL}/app/payment/failure?payment_id=${razorpay_payment_id}`);
             return;
         }
     } catch (error) {

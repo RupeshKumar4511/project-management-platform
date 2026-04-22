@@ -7,7 +7,7 @@ const PaymentSuccess = () => {
   const payment_id = query.get("payment_id");
 
   const onReturn = () => {
-    redirect(`${import.meta.env.VITE_FRONTEND_URL}/app/create-workspace`)
+    return redirect(`${import.meta.env.VITE_FRONTEND_URL}/app/create-workspace`)
 
   }
   return (

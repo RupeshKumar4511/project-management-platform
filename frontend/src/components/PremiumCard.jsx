@@ -1,12 +1,14 @@
 import { useSelector } from 'react-redux';
 import image from '../assets/workspace_img_default.png'
 import { Check, Zap, IndianRupee } from 'lucide-react';
+import ensureAuth from '../features/ensureAuth';
 
 const PremiumCard = () => {
 
     const { authResponse } = useSelector((store) => store.auth);
 
     const checkoutHandler = async ({ amount }) => {
+        await ensureAuth();
         const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/checkout`, {
             method: "POST",
             credentials: 'include',

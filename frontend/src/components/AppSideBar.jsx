@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { signOut } from '../features/authSlice';
 import ErrorPage from './ErrorPage'
+import ensureAuth from '../features/ensureAuth';
 
 
 export default function AppSideBar({ open, setOpen }) {
@@ -20,7 +21,11 @@ export default function AppSideBar({ open, setOpen }) {
 
     const fetchUserPlan = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/details`);
+            await ensureAuth();
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/details`,{
+                credentials:'include',
+                headers:{'Content-Type':'application/json'}
+            });
             const result = await response.json();
 
             if (result.payment) {
