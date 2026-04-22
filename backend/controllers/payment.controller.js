@@ -20,9 +20,9 @@ export const checkout = async (req, res) => {
 
     try {
 
-        if (amount == 100) {
+        if (Number(amount) == 100) {
             order = await razorpay.orders.create({
-                amount: Number(amount * 100),
+                amount: Number(amount) * 100,
                 currency: "INR"
             })
 
@@ -30,9 +30,9 @@ export const checkout = async (req, res) => {
 
             console.log(`Order created for amount ${amount} with orderId: ${order.id}.`)
 
-            return res.status(200).send({ order, message: `Order created for amount ${amount} with orderId: ${order.id}.` })
+            return res.status(200).send({ success:true, order, message: `Order created for amount ${amount} with orderId: ${order.id}.` })
         }else{
-            return res.status(400).send({success:true, message:"Invalid Amount for plan"})
+            return res.status(400).send({success:false, message:"Invalid Amount for plan"})
         }
 
     } catch (error) {
