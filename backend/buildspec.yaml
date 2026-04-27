@@ -36,7 +36,8 @@ phases:
       - docker push $DOCKER_REGISTRY_USERNAME/projectly-backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
       - echo "Deploying to EC2 via SSM..."
-      - aws ssm send-command \
+      - |
+        aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
           --parameters "commands=[
