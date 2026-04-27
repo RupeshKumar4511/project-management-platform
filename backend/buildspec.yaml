@@ -47,6 +47,12 @@ phases:
               "export DOCKER_USERNAME='${DOCKER_REGISTRY_USERNAME}'",
               "export BACKEND_TAG='${CODEBUILD_RESOLVED_SOURCE_VERSION}'",
               "cd /home/ubuntu",
+              "echo \"Stopping and removing old containers...\"",
+              "docker-compose down --remove-orphans",
+              "echo \"Wiping previous images to free space...\"",
+              "docker image prune -af",
+              "echo \"Fetching latest build and starting up...\"",
+              "docker-compose pull",
               "docker-compose up -d"
             ]
           }'
