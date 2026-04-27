@@ -21,15 +21,15 @@ phases:
     commands:
       - set -e
       - echo "Building backend image..."
-      - docker build -t $DOCKER_REGISTRY_USERNAME/backend:latest .
-      - docker tag $DOCKER_REGISTRY_USERNAME/backend:latest $DOCKER_REGISTRY_USERNAME/backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker build -t $DOCKER_REGISTRY_USERNAME/projectly-backend:latest .
+      - docker tag $DOCKER_REGISTRY_USERNAME/projectly-backend:latest $DOCKER_REGISTRY_USERNAME/projectly-backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
     commands:
       - set -e
       - echo "Pushing backend image..."
-      - docker push $DOCKER_REGISTRY_USERNAME/backend:latest
-      - docker push $DOCKER_REGISTRY_USERNAME/backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $DOCKER_REGISTRY_USERNAME/projectly-backend:latest
+      - docker push $DOCKER_REGISTRY_USERNAME/projectly-backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
       - echo "Deploying to EC2 via SSM..."
       - aws ssm send-command \

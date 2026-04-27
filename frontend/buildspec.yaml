@@ -25,14 +25,14 @@ phases:
 
       - docker build \
           --build-arg VITE_API_URL=$VITE_API_URL \
-          -t $DOCKER_REGISTRY_USERNAME/frontend:latest .
+          -t $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest .
 
-      - docker tag $DOCKER_REGISTRY_USERNAME/frontend:latest $DOCKER_REGISTRY_USERNAME/frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker tag $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest $DOCKER_REGISTRY_USERNAME/projectly-frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:
     commands:
       - set -e
       - echo "Pushing frontend image..."
 
-      - docker push $DOCKER_REGISTRY_USERNAME/frontend:latest
-      - docker push $DOCKER_REGISTRY_USERNAME/frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION
+      - docker push $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest
+      - docker push $DOCKER_REGISTRY_USERNAME/projectly-frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION

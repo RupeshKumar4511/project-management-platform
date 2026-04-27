@@ -14,7 +14,7 @@ services:
       - frontend
 
   app:
-    image: ${DOCKER_USERNAME}/backend:latest
+    image: ${DOCKER_USERNAME}/projectly-backend:latest
     restart: always
     environment:
       - NODE_ENV=production
@@ -25,5 +25,5 @@ services:
       - REDIS_PORT=${REDIS_PORT}
 
   frontend:
-    image: ${DOCKER_USERNAME}/frontend:latest
+    image: ${DOCKER_USERNAME}/projectly-frontend:latest
     restart: always
