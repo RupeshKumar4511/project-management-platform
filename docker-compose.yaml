@@ -18,12 +18,29 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
+      - FRONTEND_URL=${FRONTEND_URL}
+      - BACKEND_URL=${BACKEND_URL}
       - PostgreSQL_URI=${PostgreSQL_URI}
       - REDIS_USERNAME=${REDIS_USERNAME}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
+      - RESEND_API_KEY=${RESEND_API_KEY}
+      - EMAIL=${EMAIL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - RAZORPAY_API_KEY_ID=${RAZORPAY_API_KEY_ID}
+      - RAZORPAY_API_SECRET=${RAZORPAY_API_SECRET}
 
   frontend:
     image: ${DOCKER_USERNAME}/projectly-frontend:latest
     restart: always
+    environment:
+      - NODE_ENV=production
+      - VITE_API_URL=/api/v1 
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+      - VITE_FRONTEND_URL=${VITE_FRONTEND_URL}
+      - VITE_RAZORPAY_API_KEY_ID=${VITE_RAZORPAY_API_KEY_ID}
+                
