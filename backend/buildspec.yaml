@@ -47,8 +47,6 @@ phases:
               "export DOCKER_USERNAME='${DOCKER_REGISTRY_USERNAME}'",
               "export BACKEND_TAG='${CODEBUILD_RESOLVED_SOURCE_VERSION}'",
               "cd /home/ubuntu",
-              "docker-compose pull",
               "docker-compose up -d",
-              "docker system prune -f"
             ]
           }'
