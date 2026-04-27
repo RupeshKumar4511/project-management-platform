@@ -21,7 +21,11 @@ phases:
     commands:
       - set -e
       - echo "Building backend image..."
-      - docker build -t $DOCKER_REGISTRY_USERNAME/projectly-backend:latest .
+      - |
+        docker build \
+        -t $DOCKER_REGISTRY_USERNAME/projectly-backend:latest \
+        -f backend/Dockerfile ./backend
+
       - docker tag $DOCKER_REGISTRY_USERNAME/projectly-backend:latest $DOCKER_REGISTRY_USERNAME/projectly-backend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
   post_build:

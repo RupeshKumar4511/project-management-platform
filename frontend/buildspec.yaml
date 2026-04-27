@@ -21,10 +21,11 @@ phases:
     commands:
       - set -e
       - echo "Building frontend image..."
-
-      - docker build \
+      - |
+        docker build \
           --build-arg VITE_API_URL=$VITE_API_URL \
-          -t $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest .
+          -t $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest \
+          -f frontend/Dockerfile ./frontend
 
       - docker tag $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest $DOCKER_REGISTRY_USERNAME/projectly-frontend:$CODEBUILD_RESOLVED_SOURCE_VERSION
 
