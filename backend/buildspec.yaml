@@ -2,8 +2,8 @@ version: 0.2
 
 env:
   parameter-store:
-    DOCKER_REGISTRY_USERNAME: /myapp/docker/username
-    DOCKER_REGISTRY_PASSWORD: /myapp/docker/password
+    DOCKER_REGISTRY_USERNAME: /myapp/docker-credentials/username
+    DOCKER_REGISTRY_PASSWORD: /myapp/docker-credentials/password
     EC2_INSTANCE_ID: /myapp/ec2/instance-id
 
 phases:
