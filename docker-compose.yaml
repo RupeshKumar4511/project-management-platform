@@ -16,6 +16,8 @@ services:
   app:
     image: ${DOCKER_USERNAME}/projectly-backend:latest
     restart: always
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - FRONTEND_URL=${FRONTEND_URL}
@@ -37,6 +39,8 @@ services:
   frontend:
     image: ${DOCKER_USERNAME}/projectly-frontend:latest
     restart: always
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - VITE_API_URL=/api/v1 
