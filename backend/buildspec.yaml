@@ -40,10 +40,15 @@ phases:
         aws ssm send-command \
           --document-name "AWS-RunShellScript" \
           --targets "Key=instanceIds,Values=$EC2_INSTANCE_ID" \
-          --parameters "commands=[
-            \"export BACKEND_TAG=$CODEBUILD_RESOLVED_SOURCE_VERSION\",
-            \"cd /home/ubuntu\",
-            \"docker-compose pull\",
-            \"docker-compose up -d\"
-          ]" \
-          --region $AWS_DEFAULT_REGION
+          --region $AWS_DEFAULT_REGION \
+          --comment "Deploying $CODEBUILD_RESOLVED_SOURCE_VERSION" \
+          --parameters '{
+            "commands":[
+              "export DOCKER_USERNAME='${DOCKER_REGISTRY_USERNAME}'",
+              "export BACKEND_TAG='${CODEBUILD_RESOLVED_SOURCE_VERSION}'",
+              "cd /home/ubuntu",
+              "docker-compose pull",
+              "docker-compose up -d",
+              "docker system prune -f"
+            ]
+          }'
