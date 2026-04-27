@@ -7,7 +7,7 @@ A full stack web app that helps teams plan, organize, and track projects efficie
 <br>
 • Implemented custom auth system using JWT Access & Refresh Token and resend for email verification
 <br>
-• Integrated Razorpay payment gateway.
+• Integrated Razorpay payment gateway
 
 # TechStack : 
 Frontend : React, Redux Toolkit, Tailwind CSS and RTK Query
