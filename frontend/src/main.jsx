@@ -60,7 +60,7 @@ const router = createBrowserRouter([
     path: '/app/workspace', element: <ProtectedRoute> <App/></ProtectedRoute>,
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element:  <Dashboard /> },
+      { index: true, element:  <ProtectedRoute><Dashboard /></ProtectedRoute> },
       { path: '/app/workspace/team', element:  <Team /> },
       { path: '/app/workspace/projects', element:  <Projects /> },
       { path: '/app/workspace/settings', element:  <Settings /> },
