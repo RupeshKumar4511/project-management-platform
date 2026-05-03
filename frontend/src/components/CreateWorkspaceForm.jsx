@@ -16,39 +16,30 @@ export default function CreateWorkspaceForm() {
   };
 
   const handleClick = () => {
-    reset({
-      workspaceName: '',
-      description: '',
-    });
-    setTimeout(() => {
-      navigate('/app');
-    })
+    reset({ workspaceName: '', description: '' });
+    setTimeout(() => { navigate('/app'); })
   }
 
   if (isSuccess) {
-    return (
-      <SuccessModal handleClick={handleClick} message={"Your Workspace is created successfully.."} />
-    )
+    return <SuccessModal handleClick={handleClick} message={"Your Workspace is created successfully.."} />
   }
 
   return (
-    /* Adjusted padding (p-6 on mobile, p-10 on desktop) and width constraints */
-    <div className="bg-white rounded-2xl md:rounded-3xl shadow-lg p-6 md:p-10 max-w-2xl mx-auto w-[95%] sm:w-full my-4 md:my-10">
-      
-      <h2 className="text-xl md:text-2xl font-semibold text-gray-800">
+    <div className="bg-white rounded-2xl md:rounded-3xl shadow-lg p-4 sm:p-6 md:p-10 max-w-2xl mx-auto w-[95%] sm:w-[90%] md:w-full my-4 md:my-10">
+
+      <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">
         Create Your Workspace
       </h2>
-      
+
       {isLoading && <LoadingSpinner />}
-      
-      <p className="text-gray-500 mt-2 text-sm md:text-base">
-        Set up a new organizational space for your team and start managing
-        projects instantly.
+
+      <p className="text-gray-500 mt-2 text-xs sm:text-sm md:text-base">
+        Set up a new organizational space for your team and start managing projects instantly.
       </p>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="mt-6 flex flex-col gap-4" /* Changed grid to flex-col for better mobile stacking */
+        className="mt-4 sm:mt-6 flex flex-col gap-3 sm:gap-4"
         ref={formRef}
       >
         <p className={`text-red-500 text-sm ${error?.data ? '' : 'hidden'}`}>
@@ -56,16 +47,14 @@ export default function CreateWorkspaceForm() {
         </p>
 
         <div className="w-full">
-          <label className="text-sm font-medium text-gray-600">Workspace Name</label>
+          <label className="text-xs sm:text-sm font-medium text-gray-600">Workspace Name</label>
           <input
             type="text"
             placeholder="e.g. My Company"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
+            className="mt-1 w-full rounded-xl border border-gray-300 px-3 sm:px-4 py-2.5 sm:py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
             {...register("workspaceName", {
               required: "Workspace name is required",
-              maxLength: {
-                value: 20, message: "Length cannot exceed 20 characters."
-              }
+              maxLength: { value: 20, message: "Length cannot exceed 20 characters." }
             })}
           />
           {errors.workspaceName && (
@@ -74,16 +63,14 @@ export default function CreateWorkspaceForm() {
         </div>
 
         <div className="w-full">
-          <label className="text-sm font-medium text-gray-600">Description</label>
+          <label className="text-xs sm:text-sm font-medium text-gray-600">Description</label>
           <textarea
             rows={4}
             placeholder="Short description about your organization"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
+            className="mt-1 w-full rounded-xl border border-gray-300 px-3 sm:px-4 py-2.5 sm:py-3 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
             {...register("description", {
               required: "Description is required",
-              maxLength: {
-                value: 255, message: "Length cannot exceed 255 characters."
-              }
+              maxLength: { value: 255, message: "Length cannot exceed 255 characters." }
             })}
           />
           {errors.description && (
@@ -94,7 +81,7 @@ export default function CreateWorkspaceForm() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full mt-4 rounded-xl bg-indigo-600 text-white py-3 md:py-4 font-semibold hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:bg-indigo-400"
+          className="w-full mt-2 sm:mt-4 rounded-xl bg-indigo-600 text-white py-2.5 sm:py-3 md:py-4 font-semibold text-sm sm:text-base hover:bg-indigo-700 active:scale-[0.98] transition-all disabled:bg-indigo-400"
         >
           {isLoading ? "Creating..." : "Create Workspace"}
         </button>
