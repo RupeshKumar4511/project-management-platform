@@ -6,7 +6,7 @@ services:
     container_name: nginx_proxy
     restart: always
     ports:
-      - "80:80"
+      - "8000:8000"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
@@ -15,6 +15,7 @@ services:
 
   app:
     image: ${DOCKER_USERNAME}/projectly-backend:latest
+    container_name: app
     restart: always
     env_file:
       - .env
@@ -38,6 +39,7 @@ services:
 
   frontend:
     image: ${DOCKER_USERNAME}/projectly-frontend:latest
+    container_name: frontend
     restart: always
     env_file:
       - .env
