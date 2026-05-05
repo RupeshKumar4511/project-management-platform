@@ -5,6 +5,9 @@ env:
     DOCKER_REGISTRY_USERNAME: /myapp/docker-credentials/username
     DOCKER_REGISTRY_PASSWORD: /myapp/docker-credentials/password
     VITE_API_URL: /myapp/frontend/api-url
+    VITE_BACKEND_URL: /myapp/frontend/backend-url
+    VITE_FRONTEND_URL: /myapp/frontend/frontend-url
+    VITE_RAZORPAY_API_KEY_ID: /myapp/frontend/razorpay-key-id
 
 phases:
   install:
@@ -24,6 +27,9 @@ phases:
       - |
         docker build \
           --build-arg VITE_API_URL=$VITE_API_URL \
+          --build-arg VITE_BACKEND_URL=$VITE_BACKEND_URL \
+          --build-arg VITE_FRONTEND_URL=$VITE_FRONTEND_URL \
+          --build-arg VITE_RAZORPAY_API_KEY_ID=$VITE_RAZORPAY_API_KEY_ID \
           -t $DOCKER_REGISTRY_USERNAME/projectly-frontend:latest \
           -f frontend/Dockerfile ./frontend
 
