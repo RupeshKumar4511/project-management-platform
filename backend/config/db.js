@@ -5,7 +5,12 @@ import {schema} from '../models/schema.js'
 config()
 
 const pool = new Pool({
-    connectionString:process.env.PostgreSQL_URI
+    connectionString:process.env.PostgreSQL_URI,
+    ssl: {
+        rejectUnauthorized: false  // required for Neon
+    },
+    connectionTimeoutMillis: 30000,  // wait 30s for a connection
+    idleTimeoutMillis: 60000,
 })
 
 export const db = drizzle(pool,{schema});

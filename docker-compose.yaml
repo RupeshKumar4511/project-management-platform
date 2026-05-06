@@ -16,11 +16,14 @@ services:
   app:
     image: ${DOCKER_USERNAME}/projectly-backend:latest
     container_name: app
+    dns:
+      - 8.8.8.8
     restart: always
     env_file:
       - .env
     environment:
       - NODE_ENV=production
+      - NODE_OPTIONS=--dns-result-order=ipv4first
       - FRONTEND_URL=${FRONTEND_URL}
       - BACKEND_URL=${BACKEND_URL}
       - PostgreSQL_URI=${PostgreSQL_URI}

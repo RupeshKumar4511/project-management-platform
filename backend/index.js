@@ -17,6 +17,15 @@ const PORT = process.env.PORT || 3000;
   }
 })();
 
+// Keep Neon alive every 4 minutes
+setInterval(async () => {
+    try {
+        await pool.query('SELECT 1')
+    } catch (err) {
+        console.error('Database keep-alive failed:', err.message)
+    }
+}, 4 * 60 * 1000)
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
