@@ -9,7 +9,7 @@ const Chatbot = () => {
 
   const getQueryResponse = async(query)=>{
     await ensureAuth();
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/chat`,{
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/chat`,{
       method:"POST",
       headers: { "Content-Type": 'application/json' },
       credentials:'include',

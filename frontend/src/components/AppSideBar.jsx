@@ -23,7 +23,7 @@ export default function AppSideBar({ open, setOpen }) {
         const fetchUserPlan = async () => {
             try {
                 await ensureAuth();
-                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/details`, {
+                const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/payment/details`, {
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' }
                 });
