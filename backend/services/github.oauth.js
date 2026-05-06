@@ -17,8 +17,8 @@ export const cookieConfig = {
 
 const options = {
     httpOnly:true,
-    secure: true,
-    sameSite: 'None'
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
 }
 
 export const getGithubLoginPage = async (req, res) => {

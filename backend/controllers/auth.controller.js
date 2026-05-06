@@ -33,26 +33,26 @@ export const generateRefreshToken = (user) => {
 }
 
 export const options = {
-            httpOnly: true,
-            secure: true,
-            sameSite: "None"
-        }
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax'
+}
 
 //  signup controller 
 export const signUp = async (req, res) => {
     const { username, email, password } = req.body;
 
     try {
-        const [user] = await db.select().from(users).where(or(eq(users.username, username), eq(users.email,email)))
-        
+        const [user] = await db.select().from(users).where(or(eq(users.username, username), eq(users.email, email)))
+
         if (user) {
             return res.status(409).send({ message: "User already exists." })
         }
 
-        const hashedPassword = await bcrypt.hash(password,10);
-        
-        await db.insert(users).values({ username:username, email:email, password:hashedPassword })
-        
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        await db.insert(users).values({ username: username, email: email, password: hashedPassword })
+
         return res.status(201).send({ success: true, message: "SignUp Successfully" })
 
     } catch (error) {
@@ -64,7 +64,7 @@ export const signUp = async (req, res) => {
 
 // login controller
 export const login = async (req, res) => {
-    const { username:identifier, password } = req.body;
+    const { username: identifier, password } = req.body;
     const errorMsg = { success: false, message: "Username or Password is Wrong" };
 
     try {
@@ -82,8 +82,8 @@ export const login = async (req, res) => {
 
         const [dbToken] = await db.select().from(tokens).where(eq(tokens.userId, user.id))
 
-        if(dbToken){
-            await db.delete(tokens).where(eq(tokens.userId,user.id))
+        if (dbToken) {
+            await db.delete(tokens).where(eq(tokens.userId, user.id))
         }
 
         const accessToken = generateAccessToken(user);
@@ -91,15 +91,16 @@ export const login = async (req, res) => {
 
         const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
 
-        await db.insert(tokens).values({ userId: user.id, refreshToken:refreshToken, expiredAt: expiresAt })
+        await db.insert(tokens).values({ userId: user.id, refreshToken: refreshToken, expiredAt: expiresAt })
 
 
         res.cookie("accessToken", accessToken, options)
-        res.cookie("refreshToken",refreshToken, options)
+        res.cookie("refreshToken", refreshToken, options)
 
-        return res.status(200).send({ success: true,username:user.username, email:user.email, message: "Login Successfully" })
+        return res.status(200).send({ success: true, username: user.username, email: user.email, message: "Login Successfully" })
 
     } catch (error) {
+        console.log(error)
         return res.status(500).send({ success: false, message: "internal server error" })
     }
 
@@ -111,7 +112,7 @@ export const login = async (req, res) => {
 // generate New refreshToken
 export const generateNewRefreshToken = async (req, res) => {
     const token = req.cookies?.refreshToken;
-    
+
     if (!token) {
         return res.status(401).send({ message: "Unauthorized Request" })
     }
@@ -123,22 +124,22 @@ export const generateNewRefreshToken = async (req, res) => {
 
         if (!dbToken) {
             return res.status(403).send({ message: "Invalid Refresh token" })
-        }       
+        }
 
         if (dbToken?.refreshToken !== token) {
-            return res.status(403).send({ success:false, message: "your refresh token is expired or used", code:"SIGNED_OUT" })
+            return res.status(403).send({ success: false, message: "your refresh token is expired or used", code: "SIGNED_OUT" })
         }
 
         const accessToken = generateAccessToken(decodedData)
         const newRefreshToken = generateRefreshToken(decodedData)
 
         const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
-        await db.update(tokens).set({ refreshToken: newRefreshToken,expiredAt:expiresAt }).where(eq(dbToken.refreshToken, token))
+        await db.update(tokens).set({ refreshToken: newRefreshToken, expiredAt: expiresAt }).where(eq(dbToken.refreshToken, token))
 
-        res.cookie("accessToken", accessToken,options)
-        res.cookie("refreshToken", newRefreshToken,options)
+        res.cookie("accessToken", accessToken, options)
+        res.cookie("refreshToken", newRefreshToken, options)
 
-        res.status(200).send({success:true,username:decodedData.username,email:decodedData.email})
+        res.status(200).send({ success: true, username: decodedData.username, email: decodedData.email })
 
     } catch (error) {
         return res.status(401).send({ success: false, message: "Invalid or Expired Token" });
@@ -166,15 +167,15 @@ export const logOut = async (req, res) => {
         }
 
         if (refreshToken && dbToken.refreshToken !== refreshToken) {
-            res.clearCookie("accessToken",options)
-            res.clearCookie("refreshToken",options)
-            return res.status(403).send({success:false, message: "your refresh token is expired or used",code:"SIGNED_OUT" })
+            res.clearCookie("accessToken", options)
+            res.clearCookie("refreshToken", options)
+            return res.status(403).send({ success: false, message: "your refresh token is expired or used", code: "SIGNED_OUT" })
         }
 
         await db.delete(tokens).where(eq(tokens.userId, decodedData.id));
 
-        res.clearCookie("accessToken",options)
-        res.clearCookie("refreshToken",options)
+        res.clearCookie("accessToken", options)
+        res.clearCookie("refreshToken", options)
 
         return res.status(200).send({ logout: true, message: "Logout Successfully." })
 
@@ -185,51 +186,51 @@ export const logOut = async (req, res) => {
 
 }
 
-export const verifyUser = async(req,res)=>{
-    const {email} = req.body;
+export const verifyUser = async (req, res) => {
+    const { email } = req.body;
 
-    const [user] = await db.select({email:users.email}).from(users).where(eq(users.email,email));
+    const [user] = await db.select({ email: users.email }).from(users).where(eq(users.email, email));
 
-    if(!user){
-        res.status(400).send({success:false,message:"Incorrect Email"})
+    if (!user) {
+        res.status(400).send({ success: false, message: "Incorrect Email" })
     }
 
-    return res.status(200).send({success:true,message:"Email Verified Successfully."})
-    
+    return res.status(200).send({ success: true, message: "Email Verified Successfully." })
+
 
 
 }
 
-export const resetPassword = async(req,res)=>{
-    const {email,password} = req.body;
+export const resetPassword = async (req, res) => {
+    const { email, password } = req.body;
 
-    const [user] = await db.select({email:users.email}).from(users).where(eq(users.email,email));
+    const [user] = await db.select({ email: users.email }).from(users).where(eq(users.email, email));
 
-    if(!user){
-        return res.status(401).send({success:false,message:"Unauthorized Request."})
+    if (!user) {
+        return res.status(401).send({ success: false, message: "Unauthorized Request." })
     }
-    const hashedPassword = await bcrypt.hash(password,10)
-    await db.update(users).set({password:hashedPassword}).where(eq(users.email,email))
+    const hashedPassword = await bcrypt.hash(password, 10)
+    await db.update(users).set({ password: hashedPassword }).where(eq(users.email, email))
 
-    return res.status(200).send({success:true,message:"Password reset Successfully"})
-    
+    return res.status(200).send({ success: true, message: "Password reset Successfully" })
+
 }
 
 
 export const sendEmailController = async (req, res) => {
-  try {
-    await sendOtp(req.body);
-    res.status(200).json({
-      success: true,
-      message: "OTP sent successfully",
-    });
-  } catch (err) {
-    console.log(err)
-    return res.status(500).send({success:false,message:"Internal Server Error"})
-  }
+    try {
+        await sendOtp(req.body);
+        res.status(200).json({
+            success: true,
+            message: "OTP sent successfully",
+        });
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send({ success: false, message: "Internal Server Error" })
+    }
 };
 
 
-export const getUserData = async(req,res)=>{
-    return res.status(200).send({success:true,username:req.user.username,email:req.user.email})
+export const getUserData = async (req, res) => {
+    return res.status(200).send({ success: true, username: req.user.username, email: req.user.email })
 }
