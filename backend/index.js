@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
   }
 })();
 
-// Keep Neon alive every 4 minutes
+// Keep Neon postgres alive every 4 minutes
 setInterval(async () => {
     try {
         await pool.query('SELECT 1')
