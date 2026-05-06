@@ -8,7 +8,7 @@ const PremiumCard = () => {
 
   const checkoutHandler = async ({ amount }) => {
     await ensureAuth();
-    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/checkout`, {
+    const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/payment/checkout`, {
       method: "POST",
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
@@ -23,7 +23,7 @@ const PremiumCard = () => {
       "description": "Test Transaction",
       "image": image,
       "order_id": order.id,
-      callback_url: `${import.meta.env.VITE_BACKEND_URL}/api/v1/payment/verification`,
+      callback_url: `${import.meta.env.VITE_BACKEND_URL}/payment/verification`,
       "prefill": { "name": authResponse.username, "email": authResponse.email, "contact": "9000090000" },
       "notes": { "address": "Projectly : A Project Management Platform" },
       "theme": { "color": "#3399cc" }
