@@ -8,6 +8,10 @@ const client = createClient({
     socket: {
         host: process.env.REDIS_HOST,
         port: parseInt(process.env.REDIS_PORT)
+    },
+    reconnectStrategy: (retries) => {
+            if (retries > 10) return new Error('Max retries reached');
+            return Math.min(retries * 100, 3000); // Retry with backoff
     }
 });
 

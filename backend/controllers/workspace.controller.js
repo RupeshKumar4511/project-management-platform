@@ -31,10 +31,10 @@ export const createWorkspace = async (req, res) => {
             return res.status(400).send({ success: false, message: "You have already created a workspace" })
         }
 
-        const [order] = await db.select({id:orders.id}).from(orders).where(eq(orders.userId,req.user.id));
+        const [order] = await db.select({ id: orders.id }).from(orders).where(eq(orders.userId, req.user.id));
 
-        if(!order){
-            return res.status(400).send({success:false,message: "Purchase a plan to create workspace"})
+        if (!order) {
+            return res.status(400).send({ success: false, message: "Purchase a plan to create workspace" })
         }
 
         await db.transaction(async (tx) => {
@@ -439,7 +439,7 @@ export const updateTask = async (req, res) => {
             await sendTaskInvitation(body)
         }
 
-        await db.update(tasks).set({ title, description, type, status, priority, assigneeId: workspaceUser.id, dueDate:new Date(dueDate) }).where(eq(tasks.id, taskId));
+        await db.update(tasks).set({ title, description, type, status, priority, assigneeId: workspaceUser.id, dueDate: new Date(dueDate) }).where(eq(tasks.id, taskId));
 
         await client.expire(`workspace:${req.user.workspaceId}`, 0)
 
