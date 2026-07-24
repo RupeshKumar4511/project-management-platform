@@ -21,10 +21,37 @@ export const checkout = async (req, res) => {
 
     try {
 
+        // IDEMPOTENCY: Check if the user already has a pending order created 
+        const [existingOrder] = await db
+            .select()
+            .from(orders)
+            .where(
+                and(
+                    eq(orders.userId, req.user.id),
+                    eq(orders.amount, Number(amount))
+                )
+            );
+
+        // If an unpaid order already exists, reuse it instead of creating a new Razorpay order
+        if (existingOrder && !existingOrder.razorpay_payment_id) {
+            return res.status(200).send({
+                success: true,
+                order: {
+                    id: existingOrder.razorpay_order_id,
+                    amount: existingOrder.amount * 100,
+                    currency: "INR"
+                },
+                message: "Reused existing pending order."
+            });
+        }
+        // Generate a unique idempotency receipt key for Razorpay
+        const receipt = `rcpt_${req.user.id}_${Date.now()}`;
+
         if (Number(amount) == 100) {
             order = await razorpay.orders.create({
                 amount: Number(amount) * 100,
-                currency: "INR"
+                currency: "INR",
+                receipt: receipt
             })
 
             await db.insert(orders).values({userId: req.user.id,razorpay_order_id:order.id,amount:Number(amount)})
