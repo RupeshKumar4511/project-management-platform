@@ -45,13 +45,13 @@ export const checkout = async (req, res) => {
             });
         }
         // Generate a unique idempotency receipt key for Razorpay
-        const receipt = `rcpt_${req.user.id}_${Date.now()}`;
+        // const receipt = `rcpt_${req.user.id}_${Date.now()}`;
 
         if (Number(amount) == 100) {
             order = await razorpay.orders.create({
                 amount: Number(amount) * 100,
                 currency: "INR",
-                receipt: receipt
+                
             })
 
             await db.insert(orders).values({userId: req.user.id,razorpay_order_id:order.id,amount:Number(amount)})
