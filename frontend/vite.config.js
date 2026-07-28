@@ -3,9 +3,16 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 
+// export default defineConfig({
+//   plugins: [react(), tailwindcss()],
+//   server: {
+//     allowedHosts: ['projectly-kj9b.onrender.com'],
+//   },
+// })
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    allowedHosts: ['projectly-kj9b.onrender.com'],
-  },
+    port: 5173,
+  }
 })
